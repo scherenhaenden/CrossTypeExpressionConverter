@@ -9,7 +9,18 @@ public static class MappingUtils
     /// (  src => new Dest { DestProp = src.SrcProp, … }  ).
     /// The resulting map has    SrcProp -> DestProp
     /// which is exactly what <see cref="ExpressionConverter"/> expects.
+    /// <summary>
+    /// Builds a dictionary mapping source property names to destination property names based on a lambda expression using an object initializer.
     /// </summary>
+    /// <param name="mapping">
+    /// A lambda expression that maps a source type to a destination type using an object initializer (e.g., <c>src => new Dest { DestProp = src.SrcProp }</c>).
+    /// </param>
+    /// <returns>
+    /// A dictionary where each key is a source property name and each value is the corresponding destination property name.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the provided expression does not use an object initializer.
+    /// </exception>
     public static IDictionary<string,string> BuildMemberMap<TSource,TDestination>(
         Expression<Func<TSource,TDestination>> mapping)
     {
