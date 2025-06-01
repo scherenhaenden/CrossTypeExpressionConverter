@@ -1,5 +1,5 @@
 ﻿using System.Linq.Expressions;
-using System.Reflection; // Required for MemberInfo
+using System.Reflection; // Required for MemberInfo and BindingFlags
 
 namespace CrossTypeExpressionConverter;
 
@@ -15,18 +15,27 @@ public static class ExpressionConverter
     /// <typeparam name="TSource">The type of the source expression.</typeparam>
     /// <typeparam name="TDestination">The type of the destination expression.</typeparam>
     /// <param name="sourcePredicate">The source expression to convert.</param>
-    /// <param name="memberMap">Optional dictionary mapping <typeparamref name="TSource"/> members to their <typeparamref name="TDestination"/> counterparts.</param>
-    /// <param name="customMap">Optional callback to generate custom replacement expressions. If it returns <c>null</c>, the visitor falls back to dictionary or name‑matching logic.</param>
+    /// <param name="memberMap">Optional dictionary mapping <typeparamref name="TSource"/> members to their <typeparamref name="TDestination"/> counterparts. This map applies to direct members of TSource.</param>
+    /// <param name="customMap">Optional callback to generate custom replacement expressions for any MemberExpression in the source. If it returns <c>null</c> for a given MemberExpression, the visitor falls back to default logic for that member.</param>
     /// <returns>An expression usable inside an <see cref="IQueryable{T}"/> against <typeparamref name="TDestination"/>.</returns>
     public static Expression<Func<TDestination, bool>> Convert<TSource, TDestination>(
         Expression<Func<TSource, bool>> sourcePredicate,
         IDictionary<string, string>? memberMap = null,
         Func<MemberExpression, ParameterExpression, Expression?>? customMap = null)
     {
-        var replaceParam = Expression.Parameter(typeof(TDestination), "p");
-        var visitor      = new Visitor<TSource, TDestination>(replaceParam, memberMap, customMap);
-        var body         = visitor.Visit(sourcePredicate.Body);
-        return Expression.Lambda<Func<TDestination, bool>>(body!, replaceParam);
+        // Use the source predicate's parameter name if available, otherwise default to "p".
+        var sourceParameter = sourcePredicate.Parameters.FirstOrDefault();
+        var parameterName = sourceParameter?.Name ?? "p";
+        var replaceParam = Expression.Parameter(typeof(TDestination), parameterName);
+
+        var visitor = new Visitor<TSource, TDestination>(replaceParam, memberMap, customMap);
+        var body = visitor.Visit(sourcePredicate.Body);
+
+        if (body == null)
+        {
+            throw new InvalidOperationException("The body of the expression could not be converted.");
+        }
+        return Expression.Lambda<Func<TDestination, bool>>(body, replaceParam);
     }
 
     /// <summary>
@@ -44,46 +53,93 @@ public static class ExpressionConverter
                        Func<MemberExpression, ParameterExpression, Expression?>? customMap)
         {
             _replaceParam = replaceParam;
-            _memberMap    = memberMap;
-            _customMap    = customMap;
+            _memberMap = memberMap;
+            _customMap = customMap;
         }
 
         protected override Expression VisitParameter(ParameterExpression node)
-            => node.Type == typeof(TSource) ? _replaceParam : base.VisitParameter(node);
+        {
+            // Replace the source parameter with the new destination parameter
+            return node.Type == typeof(TSource) ? _replaceParam : base.VisitParameter(node);
+        }
 
         protected override Expression VisitMember(MemberExpression node)
         {
-            // Translate only members that belong to TSource
-            if (node.Member.DeclaringType != typeof(TSource))
-                return base.VisitMember(node);
+            // 1. Try customMap first.
+            if (_customMap != null)
+            {
+                var customResult = _customMap(node, _replaceParam);
+                if (customResult != null)
+                {
+                    return customResult;
+                }
+            }
 
-            // 1. Delegate override
-            if (_customMap is not null && _customMap(node, _replaceParam) is { } manual)
-                return manual;
+            Expression? visitedExpression = Visit(node.Expression);
 
-            // Decide which destination member name to use
-            var destName = _memberMap != null && _memberMap.TryGetValue(node.Member.Name, out var mapped)
-                            ? mapped
-                            : node.Member.Name;
+            if (visitedExpression == null)
+            {
+                throw new InvalidOperationException($"Failed to visit the expression for member '{node.Member.Name}'. Source: {node.Expression}");
+            }
 
-            // Get all members with the destination name. This could be an overloaded property or method.
-            // For typical property mapping, we expect one.
-            MemberInfo[] destMembers = typeof(TDestination).GetMember(destName);
+            string sourceMemberName = node.Member.Name;
+            string destMemberName = sourceMemberName; // Default to original name
+
+            // Apply memberMap ONLY if the member being accessed was directly on the TSource parameter
+            // (which means visitedExpression will be _replaceParam) AND the original member was declared on TSource.
+            if (visitedExpression == _replaceParam && node.Member.DeclaringType == typeof(TSource))
+            {
+                if (_memberMap != null && _memberMap.TryGetValue(sourceMemberName, out var mappedName))
+                {
+                    destMemberName = mappedName;
+                }
+                // If no map entry, destMemberName remains sourceMemberName.
+                // The member (destMemberName) will be looked up on _replaceParam.Type (i.e., TDestination).
+            }
+            // For other cases (nested properties on the destination structure, or members of captured variables),
+            // destMemberName remains sourceMemberName, and it will be looked up on visitedExpression.Type.
+            
+            Type targetType = visitedExpression.Type;
+            BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public;
+            MemberInfo[] destMembers = targetType.GetMember(destMemberName, bindingFlags);
 
             if (destMembers == null || destMembers.Length == 0)
             {
-                // This is the fix: Throw InvalidOperationException if the member is not found.
-                throw new InvalidOperationException($"Member '{node.Member.Name}' from source type '{typeof(TSource).Name}' could not be mapped to '{destName}' on destination type '{typeof(TDestination).Name}' because the destination member '{destName}' was not found.");
+                string onPathMessage;
+                if (visitedExpression == _replaceParam) {
+                    onPathMessage = $"on destination type '{targetType.FullName}'";
+                } else {
+                    // Check if the expression is derived from _replaceParam to determine if it's a nested property
+                    // This check is simplified; a full check would require traversing up node.Expression.
+                    // For now, consider it "nested" if not the direct _replaceParam.
+                    // If it's a captured variable, targetType will be the type of that variable.
+                    bool isLikelyNestedOnDestination = false;
+                    Expression? current = visitedExpression;
+                    while(current is MemberExpression memberExpr) {
+                        current = memberExpr.Expression;
+                        if (current == _replaceParam) {
+                            isLikelyNestedOnDestination = true;
+                            break;
+                        }
+                    }
+                    if (current == _replaceParam) isLikelyNestedOnDestination = true;
+
+
+                    if (isLikelyNestedOnDestination) {
+                        onPathMessage = $"on nested type '{targetType.FullName}' (derived from '{_replaceParam.Name}')";
+                    } else {
+                        onPathMessage = $"on type '{targetType.FullName}' (from expression '{visitedExpression.ToString()}')";
+                    }
+                }
+                
+                throw new InvalidOperationException(
+                    $"Member '{sourceMemberName}' from source type '{node.Member.DeclaringType?.FullName ?? "UnknownType"}' " +
+                    $"(attempting to map to '{destMemberName}') could not be mapped because the destination member was not found {onPathMessage}. " +
+                    $"Full source member expression being processed: {node.ToString()}");
             }
-
-            // Assuming we want the first member found if there are multiple (e.g. overloaded methods, though less common for properties).
-            // If more specific logic is needed to choose between multiple members, it would go here.
-            var destMember = destMembers[0];
-
-            // *** Critical fix for IQueryable ***
-            // Re‑visit the inner expression so we keep any navigation chain (p.Category -> p.Category.Id, etc.).
-            var visitedInstance = Visit(node.Expression);
-            return Expression.MakeMemberAccess(visitedInstance, destMember);
+            
+            MemberInfo destMember = destMembers[0];
+            return Expression.MakeMemberAccess(visitedExpression, destMember);
         }
     }
 }

@@ -151,24 +151,34 @@ public class ExpressionConverterV2Tests
 
         Expression<Func<SourceWithNested, bool>> sourceNestedNamePredicate = s => s.ChildToMap!.NestedName == "DeepMap";
 
-        Func<MemberExpression, ParameterExpression, Expression?> customMapForNested = (srcMemberExpr, destParamExpr) =>
+         Func<MemberExpression, ParameterExpression, Expression?> customMapForNested = (srcMemberExpr, destParamExpr) =>
         {
             // Check if the expression is s.ChildToMap.NestedName
-            if (srcMemberExpr.Expression is MemberExpression parentMemberExpr && // s.ChildToMap
+            if (srcMemberExpr.Expression is MemberExpression parentMemberExpr && // s.ChildToMap [cite: 41]
                 parentMemberExpr.Member.Name == nameof(SourceWithNested.ChildToMap) &&
-                srcMemberExpr.Member.Name == nameof(NestedSourceProp.NestedName)) // .NestedName
+                srcMemberExpr.Member.Name == nameof(NestedSourceProp.NestedName)) // .NestedName [cite: 41, 42]
             {
                 // Construct the destination path: d.MappedChild
-                var mappedChildPropInfo = typeof(DestWithNested).GetProperty(nameof(DestWithNested.MappedChild));
-                if (mappedChildPropInfo == null) throw new NullReferenceException($"{nameof(DestWithNested.MappedChild)} not found.");
-                var destMappedChildAccess = Expression.Property(destParamExpr, mappedChildPropInfo);
+                var mappedChildPropInfo = typeof(DestWithNested).GetProperty(nameof(DestWithNested.MappedChild)); // [cite: 42]
+                if (mappedChildPropInfo == null) throw new NullReferenceException($"{nameof(DestWithNested.MappedChild)} not found."); // [cite: 43]
+                var destMappedChildAccess = Expression.Property(destParamExpr, mappedChildPropInfo); // [cite: 43]
 
                 // Construct the final path: d.MappedChild.InnerName
-                var innerNamePropInfo = typeof(NestedDestPropDifferentName).GetProperty(nameof(NestedDestPropDifferentName.InnerName));
-                if (innerNamePropInfo == null) throw new NullReferenceException($"{nameof(NestedDestPropDifferentName.InnerName)} not found.");
-                return Expression.Property(destMappedChildAccess, innerNamePropInfo);
+                var innerNamePropInfo = typeof(NestedDestPropDifferentName).GetProperty(nameof(NestedDestPropDifferentName.InnerName)); // [cite: 44]
+                if (innerNamePropInfo == null) throw new NullReferenceException($"{nameof(NestedDestPropDifferentName.InnerName)} not found."); // [cite: 45]
+                // return Expression.Property(destMappedChildAccess, innerNamePropInfo); // [cite: 45]
+                // New return with null check:
+                // This creates an expression equivalent to:
+                // d.MappedChild == null ? null : d.MappedChild.InnerName
+                // So if d.MappedChild is null, the expression part representing s.ChildToMap.NestedName evaluates to null.
+                // Then, (null == "DeepMap") becomes false, and no NullReferenceException is thrown.
+                return Expression.Condition(
+                    Expression.Equal(destMappedChildAccess, Expression.Constant(null, mappedChildPropInfo.PropertyType)), // Condition: d.MappedChild == null
+                    Expression.Constant(null, innerNamePropInfo.PropertyType), // If true: evaluate to null (for InnerName)
+                    Expression.Property(destMappedChildAccess, innerNamePropInfo)  // If false: evaluate to d.MappedChild.InnerName
+                );
             }
-            return null; // Fallback for other members
+            return null; // Fallback for other members [cite: 46]
         };
             
         var convertedCustomNested = ExpressionConverter.Convert<SourceWithNested, DestWithNested>(sourceNestedNamePredicate, null, customMapForNested);
@@ -281,10 +291,10 @@ public class ExpressionConverterV2Tests
     {
         // Creating an expression where the C# compiler might generate a less predictable name,
         // or if constructed manually without a name.
-        var param = Expression.Parameter(typeof(SourceSimple)); // Parameter name is often compiler-generated e.g. "<>p__0" or similar
+        var param = Expression.Parameter(typeof(SourceSimple)); 
         var body = Expression.Equal(Expression.Property(param, nameof(SourceSimple.Id)), Expression.Constant(1));
         var sourcePredicate = Expression.Lambda<Func<SourceSimple, bool>>(body, param);
-            
+
         // The converter defaults to "p" if the source parameter name is null.
         // However, Expression.Parameter(type) usually assigns a name (like "param_0") if not specified.
         // To truly test the "?? 'p'" fallback, the sourcePredicate.Parameters.FirstOrDefault()?.Name would need to be null.
@@ -292,8 +302,10 @@ public class ExpressionConverterV2Tests
         // The current behavior is that it WILL use the compiler-generated name if one exists.
         // If for some reason param.Name was null, it would default to "p".
         // For this test, we assert it uses the name from the ParameterExpression, whatever it is.
+        var expectedNameInConvertedExpression = param.Name ?? "p";
         var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate);
-        Assert.AreEqual(param.Name, convertedPredicate.Parameters[0].Name);
+
+        Assert.That(convertedPredicate.Parameters[0].Name, Is.EqualTo(expectedNameInConvertedExpression));
 
 
         // To specifically test the "p" fallback, we'd need a way for sourcePredicate.Parameters.FirstOrDefault()?.Name to be null.

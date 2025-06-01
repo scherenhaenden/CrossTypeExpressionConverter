@@ -148,7 +148,7 @@ public class ExpressionConverterTests
         // s.NumericValue == 10  => (d.DoubledValue / 2) == 10  => d.DoubledValue == 20
         Assert.IsTrue(Evaluate(convertedPredicate, new DestForCustomMap { DoubledValue = 20 }));
         Assert.IsFalse(Evaluate(convertedPredicate, new DestForCustomMap { DoubledValue = 10 })); // (10/2) == 10 -> 5 == 10 is false
-        Assert.IsTrue(Evaluate(convertedPredicate, new DestForCustomMap { DoubledValue = 0, Id = 0, TransformedData = "" })); // (0/2) == 10 -> 0 == 10 is false
+        Assert.IsFalse(Evaluate(convertedPredicate, new DestForCustomMap { DoubledValue = 0, Id = 0, TransformedData = "" })); // (0/2) == 10 -> 0 == 10 is false
     }
 
 
