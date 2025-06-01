@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrossTypeExpressionConverter", "CrossTypeExpressionConverter\CrossTypeExpressionConverter.csproj", "{F4CF83C8-E31F-44AA-90A8-71BD94B0B371}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrossTypeExpressionConverter.Tests", "CrossTypeExpressionConverter.Tests\CrossTypeExpressionConverter.Tests.csproj", "{522EB737-A819-411C-88F7-690F0C746EB4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{F4CF83C8-E31F-44AA-90A8-71BD94B0B371}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F4CF83C8-E31F-44AA-90A8-71BD94B0B371}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F4CF83C8-E31F-44AA-90A8-71BD94B0B371}.Release|Any CPU.Build.0 = Release|Any CPU
+		{522EB737-A819-411C-88F7-690F0C746EB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{522EB737-A819-411C-88F7-690F0C746EB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{522EB737-A819-411C-88F7-690F0C746EB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{522EB737-A819-411C-88F7-690F0C746EB4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
