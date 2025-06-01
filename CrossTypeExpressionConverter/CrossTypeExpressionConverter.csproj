@@ -17,4 +17,9 @@
         <RepositoryUrl>https://github.com/scherenhaenden/CrossTypeExpressionConverter</RepositoryUrl>
     </PropertyGroup>
 
+    <Target Name="CopyReadme" BeforeTargets="Pack">
+        <Copy SourceFiles="$(SolutionDir)README.md"
+              DestinationFiles="$(ProjectDir)README.md" />
+    </Target>
+
 </Project>
