@@ -9,6 +9,9 @@ public class RandomizedMappingAndConversionTests
     private static readonly Random Rng = new Random();
     private static readonly string[] PossibleNames = { "Alice", "Bob", "Charlie", "David", "Eve", "Fiona", "George", "Hannah" };
 
+    /// <summary>
+    /// Generates a random SourceModelRandom instance with various randomized properties.
+    /// </summary>
     private SourceModelRandom GenerateRandomSourceModel()
     {
         return new SourceModelRandom
@@ -24,6 +27,11 @@ public class RandomizedMappingAndConversionTests
         };
     }
 
+    /// <summary>
+    /// Maps a SourceModelRandom to a DestinationModelRandomMapped.
+    /// </summary>
+    /// <param name="source">The source model to map.</param>
+    /// <returns>A new DestinationModelRandomMapped instance with mapped properties.</returns>
     private DestinationModelRandomMapped MapSourceToDestination(SourceModelRandom source)
     {
         return new DestinationModelRandomMapped
@@ -39,6 +47,11 @@ public class RandomizedMappingAndConversionTests
         };
     }
     
+    /// <summary>
+    /// Evaluates a predicate against an item and returns the result.
+    /// </summary>
+    /// <param name="predicate">The predicate to evaluate.</param>
+    /// <param name="item">The item to test against the predicate.</param>
     private bool Evaluate<T>(Expression<Func<T, bool>> predicate, T item)
     {
         if (predicate == null) throw new ArgumentNullException(nameof(predicate));
@@ -57,6 +70,16 @@ public class RandomizedMappingAndConversionTests
     }
 
 
+    /// <summary>
+    /// Tests the conversion of a complex source predicate to a destination predicate using mapping utilities.
+    /// </summary>
+    /// <remarks>
+    /// This test generates a random source model, defines a LINQ mapping expression, and builds a member map.
+    /// It constructs a complex source predicate that evaluates to true for the target source model.
+    /// The predicate is then converted to a destination predicate using the ExpressionConverter.
+    /// The test verifies that the converted predicate correctly evaluates to true for the target destination model
+    /// and false for non-target models with altered properties.
+    /// </remarks>
     [Test]
     [Repeat(10)] // Run this test 10 times with different random data
     public void Convert_WithRandomDataAndFullMapping_ComplexPredicate_ShouldEvaluateCorrectly()
