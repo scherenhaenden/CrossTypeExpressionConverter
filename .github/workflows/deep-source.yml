@@ -2,8 +2,7 @@ name: Deep Source
 
 on:
   push:
-    branches:
-      - main
+     branches: [ master, main ]
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -22,7 +21,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: '8.0.x'
 
       - name: Build and analyze
         env:
