@@ -83,15 +83,21 @@ public static class ExpressionConverter
             }
 
             string sourceMemberName = node.Member.Name;
-            string destMemberName = sourceMemberName;
+            string destMemberName = sourceMemberName; // Default to original name
 
-            if (node.Member.DeclaringType == typeof(TSource) && _memberMap != null)
+            // Apply memberMap ONLY if the member being accessed was directly on the TSource parameter
+            // (which means visitedExpression will be _replaceParam) AND the original member was declared on TSource.
+            if (visitedExpression == _replaceParam && node.Member.DeclaringType == typeof(TSource))
             {
-                if (_memberMap.TryGetValue(sourceMemberName, out var mappedName))
+                if (_memberMap != null && _memberMap.TryGetValue(sourceMemberName, out var mappedName))
                 {
                     destMemberName = mappedName;
                 }
+                // If no map entry, destMemberName remains sourceMemberName.
+                // The member (destMemberName) will be looked up on _replaceParam.Type (i.e., TDestination).
             }
+            // For other cases (nested properties on the destination structure, or members of captured variables),
+            // destMemberName remains sourceMemberName, and it will be looked up on visitedExpression.Type.
             
             Type targetType = visitedExpression.Type;
             BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public;
@@ -99,11 +105,33 @@ public static class ExpressionConverter
 
             if (destMembers == null || destMembers.Length == 0)
             {
-                string onPathMessage = (visitedExpression == _replaceParam)
-                    ? $"on destination type '{targetType.FullName}'"
-                    : $"on nested type '{targetType.FullName}' (accessed via a path starting with '{_replaceParam.Name}')";
+                string onPathMessage;
+                if (visitedExpression == _replaceParam) {
+                    onPathMessage = $"on destination type '{targetType.FullName}'";
+                } else {
+                    // Check if the expression is derived from _replaceParam to determine if it's a nested property
+                    // This check is simplified; a full check would require traversing up node.Expression.
+                    // For now, consider it "nested" if not the direct _replaceParam.
+                    // If it's a captured variable, targetType will be the type of that variable.
+                    bool isLikelyNestedOnDestination = false;
+                    Expression? current = visitedExpression;
+                    while(current is MemberExpression memberExpr) {
+                        current = memberExpr.Expression;
+                        if (current == _replaceParam) {
+                            isLikelyNestedOnDestination = true;
+                            break;
+                        }
+                    }
+                    if (current == _replaceParam) isLikelyNestedOnDestination = true;
 
-                // Adjusted error message to include "could not be mapped"
+
+                    if (isLikelyNestedOnDestination) {
+                        onPathMessage = $"on nested type '{targetType.FullName}' (derived from '{_replaceParam.Name}')";
+                    } else {
+                        onPathMessage = $"on type '{targetType.FullName}' (from expression '{visitedExpression.ToString()}')";
+                    }
+                }
+                
                 throw new InvalidOperationException(
                     $"Member '{sourceMemberName}' from source type '{node.Member.DeclaringType?.FullName ?? "UnknownType"}' " +
                     $"(attempting to map to '{destMemberName}') could not be mapped because the destination member was not found {onPathMessage}. " +
