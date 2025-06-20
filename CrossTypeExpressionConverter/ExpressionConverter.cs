@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using System.Reflection; // Required for MemberInfo and BindingFlags
 
 namespace CrossTypeExpressionConverter;
@@ -17,7 +17,22 @@ public static class ExpressionConverter
     /// <param name="sourcePredicate">The source expression to convert.</param>
     /// <param name="memberMap">Optional dictionary mapping <typeparamref name="TSource"/> members to their <typeparamref name="TDestination"/> counterparts. This map applies to direct members of TSource.</param>
     /// <param name="customMap">Optional callback to generate custom replacement expressions for any MemberExpression in the source. If it returns <c>null</c> for a given MemberExpression, the visitor falls back to default logic for that member.</param>
-    /// <returns>An expression usable inside an <see cref="IQueryable{T}"/> against <typeparamref name="TDestination"/>.</returns>
+    /// <summary>
+    /// Converts a predicate expression from a source type to an equivalent predicate for a destination type, enabling cross-type LINQ queries.
+    /// </summary>
+    /// <param name="sourcePredicate">The predicate expression defined on the source type.</param>
+    /// <param name="memberMap">
+    /// Optional mapping of member names from the source type to the destination type for direct member accesses.
+    /// </param>
+    /// <param name="customMap">
+    /// Optional callback invoked for each member access; if it returns a non-null expression, that expression replaces the member access.
+    /// </param>
+    /// <returns>
+    /// An expression usable inside an <see cref="IQueryable{T}"/> against <typeparamref name="TDestination"/>.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the expression body cannot be converted or if a mapped member cannot be found on the destination type.
+    /// </exception>
     public static Expression<Func<TDestination, bool>> Convert<TSource, TDestination>(
         Expression<Func<TSource, bool>> sourcePredicate,
         IDictionary<string, string>? memberMap = null,
@@ -48,6 +63,12 @@ public static class ExpressionConverter
         private readonly IDictionary<string, string>? _memberMap;
         private readonly Func<MemberExpression, ParameterExpression, Expression?>? _customMap;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Visitor{TSource, TDestination}"/> class for converting expression trees between types.
+        /// </summary>
+        /// <param name="replaceParam">The parameter expression representing the destination type to substitute for the source parameter.</param>
+        /// <param name="memberMap">Optional mapping of member names from the source type to the destination type for direct member accesses.</param>
+        /// <param name="customMap">Optional callback to provide custom replacement expressions for member accesses; if it returns null, default mapping is used.</param>
         public Visitor(ParameterExpression replaceParam,
                        IDictionary<string, string>? memberMap,
                        Func<MemberExpression, ParameterExpression, Expression?>? customMap)
@@ -57,12 +78,25 @@ public static class ExpressionConverter
             _customMap = customMap;
         }
 
+        /// <summary>
+        /// Replaces the parameter of type <typeparamref name="TSource"/> with the destination parameter during expression traversal.
+        /// </summary>
+        /// <param name="node">The parameter expression to visit.</param>
+        /// <returns>The destination parameter if the node matches the source type; otherwise, the original or visited parameter expression.</returns>
         protected override Expression VisitParameter(ParameterExpression node)
         {
             // Replace the source parameter with the new destination parameter
             return node.Type == typeof(TSource) ? _replaceParam : base.VisitParameter(node);
         }
 
+        /// <summary>
+        /// Visits a member access expression and converts it to reference the corresponding member on the destination type, applying custom or mapped member names as needed.
+        /// </summary>
+        /// <param name="node">The member access expression to visit.</param>
+        /// <returns>An expression accessing the mapped member on the destination type or structure.</returns>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if the member cannot be mapped to the destination type or structure, or if the inner expression cannot be visited.
+        /// </exception>
         protected override Expression VisitMember(MemberExpression node)
         {
             // 1. Try customMap first.
