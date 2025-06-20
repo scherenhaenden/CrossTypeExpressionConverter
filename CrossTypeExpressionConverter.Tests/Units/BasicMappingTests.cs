@@ -4,17 +4,28 @@ using CrossTypeExpressionConverter.Tests.Helpers.Models;
 namespace CrossTypeExpressionConverter.Tests.Units;
 
 /// <summary>
-/// Contiene tests para la funcionalidad de mapeo básica.
+/// Contains tests for the basic mapping functionality of the ExpressionConverter,
+/// covering same-name property matching and dictionary-based mapping.
 /// </summary>
 [TestFixture]
 public class BasicMappingTests
 {
+    /// <summary>
+    /// Compiles and executes a predicate against an item, returning the boolean result.
+    /// </summary>
+    /// <param name="predicate">The expression predicate to evaluate.</param>
+    /// <param name="item">The object to test the predicate against.</param>
+    /// <returns>The result of the predicate evaluation.</returns>
     private bool Evaluate<T>(Expression<Func<T, bool>> predicate, T item)
     {
         return predicate.Compile()(item);
     }
 
-    // --- Pruebas de Mapeo por Coincidencia de Nombre ---
+    // --- Same-Name Property Mapping Tests ---
+
+    /// <summary>
+    /// Verifies that a predicate on an integer property is correctly converted when property names match between source and destination.
+    /// </summary>
     [Test]
     public void Convert_SimpleIntProperty_SameName_ShouldEvaluateCorrectly()
     {
@@ -25,10 +36,13 @@ public class BasicMappingTests
         var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate);
 
         // Assert
-        Assert.IsTrue(Evaluate(convertedPredicate, new DestSimple { Id = 10 }));
-        Assert.IsFalse(Evaluate(convertedPredicate, new DestSimple { Id = 5 }));
+        Assert.That(Evaluate(convertedPredicate, new DestSimple { Id = 10 }), Is.True);
+        Assert.That(Evaluate(convertedPredicate, new DestSimple { Id = 5 }), Is.False);
     }
 
+    /// <summary>
+    /// Verifies that a predicate on a string property is correctly converted when property names match.
+    /// </summary>
     [Test]
     public void Convert_SimpleStringProperty_SameName_ShouldEvaluateCorrectly()
     {
@@ -39,52 +53,64 @@ public class BasicMappingTests
         var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate);
 
         // Assert
-        Assert.IsTrue(Evaluate(convertedPredicate, new DestSimple { Name = "Test" }));
-        Assert.IsFalse(Evaluate(convertedPredicate, new DestSimple { Name = "Other" }));
+        Assert.That(Evaluate(convertedPredicate, new DestSimple { Name = "Test" }), Is.True);
+        Assert.That(Evaluate(convertedPredicate, new DestSimple { Name = "Other" }), Is.False);
     }
 
+    /// <summary>
+    /// Verifies that a predicate on a boolean property is correctly converted when property names match.
+    /// </summary>
     [Test]
     public void Convert_SimpleBoolProperty_SameName_ShouldEvaluateCorrectly()
     {
         // Arrange
-        Expression<Func<SourceSimple, bool>> sourcePredicate = s => s.IsActive; // Equivalente a s.IsActive == true
+        Expression<Func<SourceSimple, bool>> sourcePredicate = s => s.IsActive; // Equivalent to s.IsActive == true
 
         // Act
         var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate);
 
         // Assert
-        Assert.IsTrue(Evaluate(convertedPredicate, new DestSimple { IsActive = true }));
-        Assert.IsFalse(Evaluate(convertedPredicate, new DestSimple { IsActive = false }));
+        Assert.That(Evaluate(convertedPredicate, new DestSimple { IsActive = true }), Is.True);
+        Assert.That(Evaluate(convertedPredicate, new DestSimple { IsActive = false }), Is.False);
     }
 
-    // --- Pruebas de Mapeo Basado en Diccionario (MemberMap) ---
+    // --- Dictionary-Based (MemberMap) Mapping Tests ---
+
+    /// <summary>
+    /// Verifies that a predicate on an integer property is correctly converted using a member map for different property names.
+    /// </summary>
     [Test]
     public void Convert_IntProperty_WithMemberMap_ShouldEvaluateCorrectly()
     {
         // Arrange
         Expression<Func<SourceSimple, bool>> sourcePredicate = s => s.Id == 20;
-        var memberMap = new Dictionary<string, string> { { nameof(SourceSimple.Id), nameof(DestDifferentNames.EntityId) } };
+        var options = new ExpressionConverterOptions()
+            .WithMemberMap(new Dictionary<string, string> { { nameof(SourceSimple.Id), nameof(DestDifferentNames.EntityId) } });
 
         // Act
-        var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestDifferentNames>(sourcePredicate, memberMap);
+        var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestDifferentNames>(sourcePredicate, options);
 
         // Assert
-        Assert.IsTrue(Evaluate(convertedPredicate, new DestDifferentNames { EntityId = 20 }));
-        Assert.IsFalse(Evaluate(convertedPredicate, new DestDifferentNames { EntityId = 15 }));
+        Assert.That(Evaluate(convertedPredicate, new DestDifferentNames { EntityId = 20 }), Is.True);
+        Assert.That(Evaluate(convertedPredicate, new DestDifferentNames { EntityId = 15 }), Is.False);
     }
 
+    /// <summary>
+    /// Verifies that a predicate on a string property is correctly converted using a member map for different property names.
+    /// </summary>
     [Test]
     public void Convert_StringProperty_WithMemberMap_ShouldEvaluateCorrectly()
     {
         // Arrange
         Expression<Func<SourceSimple, bool>> sourcePredicate = s => s.Name == "MapTest";
-        var memberMap = new Dictionary<string, string> { { nameof(SourceSimple.Name), nameof(DestDifferentNames.FullName) } };
+        var options = new ExpressionConverterOptions()
+            .WithMemberMap(new Dictionary<string, string> { { nameof(SourceSimple.Name), nameof(DestDifferentNames.FullName) } });
 
         // Act
-        var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestDifferentNames>(sourcePredicate, memberMap);
+        var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestDifferentNames>(sourcePredicate, options);
 
         // Assert
-        Assert.IsTrue(Evaluate(convertedPredicate, new DestDifferentNames { FullName = "MapTest" }));
-        Assert.IsFalse(Evaluate(convertedPredicate, new DestDifferentNames { FullName = "OtherMap" }));
+        Assert.That(Evaluate(convertedPredicate, new DestDifferentNames { FullName = "MapTest" }), Is.True);
+        Assert.That(Evaluate(convertedPredicate, new DestDifferentNames { FullName = "OtherMap" }), Is.False);
     }
 }
