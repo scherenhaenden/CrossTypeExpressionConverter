@@ -8,6 +8,25 @@
 
 [![License](https://img.shields.io/github/license/scherenhaenden/CrossTypeExpressionConverter.svg?style=flat-square)](https://github.com/scherenhaenden/CrossTypeExpressionConverter/blob/main/LICENSE)
 
+[![NuGet Version (pre-release)](https://img.shields.io/nuget/vpre/CrossTypeExpressionConverter.svg?style=flat-square)](https://www.nuget.org/packages/CrossTypeExpressionConverter/)
+
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/scherenhaenden/CrossTypeExpressionConverter?style=flat-square)](https://github.com/scherenhaenden/CrossTypeExpressionConverter/releases/latest)
+
+[![GitHub Release Downloads](https://img.shields.io/github/downloads/scherenhaenden/CrossTypeExpressionConverter/total?style=flat-square)](https://github.com/scherenhaenden/CrossTypeExpressionConverter/releases)
+
+[![Build Status](https://img.shields.io/github/actions/workflow/status/scherenhaenden/CrossTypeExpressionConverter/dotnet.yml?branch=main\&style=flat-square)](https://github.com/scherenhaenden/CrossTypeExpressionConverter/actions)
+
+![Developed with Rider](https://img.shields.io/badge/Developed%20with-Rider-14345E?style=flat-square\&logo=jetbrains)
+
+![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?style=flat-square)
+
+![C#](https://img.shields.io/badge/C%23-11-239120?style=flat-square\&logo=c-sharp\&logoColor=white)
+
+![macOS](https://img.shields.io/badge/macOS-000000?style=flat-square\&logo=apple)
+![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat-square\&logo=linux\&logoColor=black)
+![Windows](https://img.shields.io/badge/Windows-0078D6?style=flat-square\&logo=windows\&logoColor=white)
+
+
 **CrossTypeExpressionConverter** is a .NET library designed to seamlessly translate LINQ predicate expressions (`Expression<Func<TSource, bool>>`) from a source type (`TSource`) to an equivalent expression for a destination type (`TDestination`). This is particularly powerful when working with different layers in your application, such as mapping query logic between domain entities and Data Transfer Objects (DTOs), while ensuring full compatibility with `IQueryable` providers like Entity Framework Core for efficient server-side query execution.
 
 Stop rewriting similar filter logic for different types! `CrossTypeExpressionConverter` allows you to define your logic once and reuse it across various type representations.
