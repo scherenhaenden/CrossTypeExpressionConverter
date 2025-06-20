@@ -13,7 +13,6 @@
         <Description>Effortlessly translate LINQ predicates across different types (TSource -&gt; TDestination) while maintaining IQueryable compatibility for ORMs like EF Core. Features flexible member mapping: automatic, dictionary-based, or custom delegates.</Description>
         <PackageProjectUrl>https://github.com/scherenhaenden/CrossTypeExpressionConverter</PackageProjectUrl>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageLicenseUrl>https://github.com/scherenhaenden/CrossTypeExpressionConverter</PackageLicenseUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/scherenhaenden/CrossTypeExpressionConverter</RepositoryUrl>
     </PropertyGroup>
