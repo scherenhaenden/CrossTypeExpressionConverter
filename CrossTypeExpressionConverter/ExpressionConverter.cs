@@ -36,14 +36,16 @@ public static class ExpressionConverter
     public static Expression<Func<TDestination, bool>> Convert<TSource, TDestination>(
         Expression<Func<TSource, bool>> sourcePredicate,
         IDictionary<string, string>? memberMap = null,
-        Func<MemberExpression, ParameterExpression, Expression?>? customMap = null)
+        Func<MemberExpression, ParameterExpression, Expression?>? customMap = null,
+        ExpressionConverterOptions? options = null)
     {
+        options ??= new ExpressionConverterOptions();
         // Use the source predicate's parameter name if available, otherwise default to "p".
         var sourceParameter = sourcePredicate.Parameters.FirstOrDefault();
         var parameterName = sourceParameter?.Name ?? "p";
         var replaceParam = Expression.Parameter(typeof(TDestination), parameterName);
 
-        var visitor = new Visitor<TSource, TDestination>(replaceParam, memberMap, customMap);
+        var visitor = new Visitor<TSource, TDestination>(replaceParam, memberMap, customMap, options);
         var body = visitor.Visit(sourcePredicate.Body);
 
         if (body == null)
@@ -62,6 +64,7 @@ public static class ExpressionConverter
         private readonly ParameterExpression _replaceParam;
         private readonly IDictionary<string, string>? _memberMap;
         private readonly Func<MemberExpression, ParameterExpression, Expression?>? _customMap;
+        private readonly ExpressionConverterOptions _options;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Visitor{TSource, TDestination}"/> class for converting expression trees between types.
@@ -71,11 +74,13 @@ public static class ExpressionConverter
         /// <param name="customMap">Optional callback to provide custom replacement expressions for member accesses; if it returns null, default mapping is used.</param>
         public Visitor(ParameterExpression replaceParam,
                        IDictionary<string, string>? memberMap,
-                       Func<MemberExpression, ParameterExpression, Expression?>? customMap)
+                       Func<MemberExpression, ParameterExpression, Expression?>? customMap,
+                       ExpressionConverterOptions options)
         {
             _replaceParam = replaceParam;
             _memberMap = memberMap;
             _customMap = customMap;
+            _options = options;
         }
 
         /// <summary>
@@ -139,6 +144,11 @@ public static class ExpressionConverter
 
             if (destMembers == null || destMembers.Length == 0)
             {
+                if (_options.MemberNotFoundBehavior == MemberNotFoundBehavior.ReturnFalse)
+                {
+                    return Expression.Constant(false);
+                }
+
                 string onPathMessage;
                 if (visitedExpression == _replaceParam) {
                     onPathMessage = $"on destination type '{targetType.FullName}'";
