@@ -4,40 +4,47 @@ using CrossTypeExpressionConverter.Tests.Helpers.Models;
 namespace CrossTypeExpressionConverter.Tests.Units;
 
 /// <summary>
-/// Contiene tests para funcionalidades misceláneas del convertidor.
+/// Contains tests for miscellaneous functionalities of the converter,
+/// such as handling of expression parameter names.
 /// </summary>
 [TestFixture]
 public class MiscellaneousTests
 {
+    /// <summary>
+    /// Verifies that the converter preserves the original parameter name from the source lambda expression.
+    /// </summary>
     [Test]
     public void Convert_ShouldPreserveSourceParameterName_IfExists()
     {
         // Arrange
-        Expression<Func<SourceSimple, bool>> sourcePredicate = item => item.Id == 1; // El nombre del parámetro es "item"
+        Expression<Func<SourceSimple, bool>> sourcePredicate = item => item.Id == 1; // The parameter name is "item".
 
         // Act
         var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate);
         
         // Assert
-        Assert.AreEqual("item", convertedPredicate.Parameters[0].Name);
+        Assert.That(convertedPredicate.Parameters[0].Name, Is.EqualTo("item"));
     }
 
+    /// <summary>
+    /// Verifies that the converter uses a generated or default parameter name when the source expression does not have an explicit one.
+    /// </summary>
     [Test]
     public void Convert_ShouldUseDefaultParameterName_IfSourceHasNone()
     {
         // Arrange
-        // Se crea una expresión manualmente sin un nombre de parámetro explícito.
+        // Manually create an expression without an explicit parameter name.
         var param = Expression.Parameter(typeof(SourceSimple)); 
         var body = Expression.Equal(Expression.Property(param, nameof(SourceSimple.Id)), Expression.Constant(1));
         var sourcePredicate = Expression.Lambda<Func<SourceSimple, bool>>(body, param);
 
-        // El conversor usará el nombre generado por el compilador si existe, o "p" como último recurso.
+        // The converter will use the compiler-generated name if one exists, or "p" as a fallback.
         var expectedName = param.Name ?? "p";
 
         // Act
         var converted = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate);
         
         // Assert
-        Assert.AreEqual(expectedName, converted.Parameters[0].Name);
+        Assert.That(converted.Parameters[0].Name, Is.EqualTo(expectedName));
     }
 }
