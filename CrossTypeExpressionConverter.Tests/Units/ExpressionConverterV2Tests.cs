@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using CrossTypeExpressionConverter.Tests.Helpers.Models;
+using CrossTypeExpressionConverter;
 
 namespace CrossTypeExpressionConverter.Tests.Units;
 

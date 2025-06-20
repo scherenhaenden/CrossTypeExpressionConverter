@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using CrossTypeExpressionConverter.Tests.Helpers.Models;
+using CrossTypeExpressionConverter;
 
 namespace CrossTypeExpressionConverter.Tests.Units;
 
@@ -317,6 +318,17 @@ public class ExpressionConverterTests
         Assert.That(ex.Message, Does.Contain(nameof(SourceSimple.PropertyToIgnoreOnDest)));
         Assert.That(ex.Message, Does.Contain("could not be mapped"));
     }
+
+    [Test]
+    public void Convert_MemberMissingOnDestination_NoMap_WithThrowDisabled_ShouldReturnDefault()
+    {
+        Expression<Func<SourceSimple, bool>> sourcePredicate = s => s.PropertyToIgnoreOnDest == "Test";
+        var options = new ExpressionConverterOptions { ThrowOnFailedMemberMapping = false };
+
+        var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate, null, null, options);
+
+        Assert.IsFalse(Evaluate(convertedPredicate, new DestSimple { Id = 1 }));
+    }
     
     [Test]
     public void Convert_MemberMissingOnDestination_WithMemberMapToNonExistent_ShouldThrowException()
@@ -329,6 +341,18 @@ public class ExpressionConverterTests
         );
         Assert.That(ex.Message, Does.Contain("NonExistentDestProperty"));
         Assert.That(ex.Message, Does.Contain("could not be mapped"));
+    }
+
+    [Test]
+    public void Convert_MemberMissingOnDestination_WithMemberMapToNonExistent_ThrowDisabled_ShouldReturnDefault()
+    {
+        Expression<Func<SourceSimple, bool>> sourcePredicate = s => s.Id == 1;
+        var memberMap = new Dictionary<string, string> { { nameof(SourceSimple.Id), "NonExistentDestProperty" } };
+        var options = new ExpressionConverterOptions { ThrowOnFailedMemberMapping = false };
+
+        var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate, memberMap, null, options);
+
+        Assert.IsFalse(Evaluate(convertedPredicate, new DestSimple { Id = 1 }));
     }
 
     // --- Parameter Name Test ---
