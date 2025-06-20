@@ -141,6 +141,9 @@ public class ExpressionConverterV2Tests
         Assert.IsFalse(Evaluate(convertedPredicate, new DestWithNested { Child = null }));
     }
 
+    /// <summary>
+    /// Tests the conversion of nested properties using a custom map to handle deep mapping scenarios.
+    /// </summary>
     [Test]
     public void Convert_NestedProperty_WithCustomMapForDeepMapping_ShouldEvaluateCorrectly()
     {
@@ -286,6 +289,9 @@ public class ExpressionConverterV2Tests
         Assert.AreEqual("item", convertedPredicate.Parameters[0].Name);
     }
 
+    /// <summary>
+    /// Tests if the converter uses the default parameter name "p" when the source parameter has no name.
+    /// </summary>
     [Test]
     public void Convert_ShouldUseDefaultParameterName_IfSourceParameterHasNoName()
     {

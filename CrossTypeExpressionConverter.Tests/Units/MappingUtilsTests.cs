@@ -23,9 +23,11 @@ public class MappingUtilsTests
         public string? FullName { get; set; }
     }
 
-    // ─────────────────────────────────────────────────────────────────────
     //  Happy-path: direct one-to-one bindings
     // ─────────────────────────────────────────────────────────────────────
+    /// <summary>
+    /// Tests that a simple one-to-one mapping returns the correct dictionary.
+    /// </summary>
     [Test]
     public void BuildMemberMap_SimpleMapping_ReturnsCorrectDictionary()
     {
@@ -44,9 +46,11 @@ public class MappingUtilsTests
         Assert.That(dict["Name"], Is.EqualTo("FullName"));
     }
 
-    // ─────────────────────────────────────────────────────────────────────
     //  Guard-clause: body must be a MemberInitExpression
     // ─────────────────────────────────────────────────────────────────────
+    /// <summary>
+    /// Tests that building a member map with a non-MemberInitExpression throws an InvalidOperationException.
+    /// </summary>
     [Test]
     public void BuildMemberMap_NonMemberInit_ThrowsInvalidOperationException()
     {
@@ -57,9 +61,11 @@ public class MappingUtilsTests
             () => MappingUtils.BuildMemberMap(mapping));
     }
 
-    // ─────────────────────────────────────────────────────────────────────
     //  Only *direct* member accesses should be mapped
     // ─────────────────────────────────────────────────────────────────────
+    /// <summary>
+    /// Tests that non-direct member assignments are ignored in member mapping.
+    /// </summary>
     [Test]
     public void BuildMemberMap_IgnoresNonDirectMemberAssignments()
     {
