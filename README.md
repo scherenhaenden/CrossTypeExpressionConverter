@@ -62,13 +62,13 @@ Stop rewriting similar filter logic for different types! `CrossTypeExpressionCon
 You can install `CrossTypeExpressionConverter` via NuGet Package Manager:
 
 ```shell
-Install-Package CrossTypeExpressionConverter -Version 0.2.1
+Install-Package CrossTypeExpressionConverter -Version 0.3.0
 ```
 
 Or using the .NET CLI:
 
 ```shell
-dotnet add package CrossTypeExpressionConverter --version 0.2.1
+dotnet add package CrossTypeExpressionConverter --version 0.3.0
 ```
 
 ---
