@@ -53,13 +53,13 @@ Stop rewriting similar filter logic for different types! `CrossTypeExpressionCon
 You can install `CrossTypeExpressionConverter` via NuGet Package Manager:
 
 ```shell
-Install-Package CrossTypeExpressionConverter -Version 0.2.1
+Install-Package CrossTypeExpressionConverter -Version 0.3.0
 ```
 
 Or using the .NET CLI:
 
 ```shell
-dotnet add package CrossTypeExpressionConverter --version 0.2.1
+dotnet add package CrossTypeExpressionConverter --version 0.3.0
 ```
 
 ---
@@ -209,9 +209,9 @@ This would convert `complexFilter` to `d => d.CalculationResult > 10`.
 
 ---
 
-## 🛣️ Roadmap & Future Enhancements (Post v0.2.1)
+## 🛣️ Roadmap & Future Enhancements (Post v0.3.0)
 
-While `CrossTypeExpressionConverter v0.2.1` focuses on robust predicate conversion with flexible mapping, future versions may include:
+While `CrossTypeExpressionConverter v0.3.0` focuses on configurable conversion via `ExpressionConverterOptions`, future versions may include:
 
 * ExpressionConverterOptions Object: Introduce a dedicated options class to simplify the Convert method signature and allow for more configuration points (e.g., ThrowOnFailedMemberMapping toggle, case-sensitivity options for name matching).
 * Selector Conversion: Support for converting projection expressions (e.g., Expression<Func<TSource, TResult>> to Expression<Func<TDestination, TDestResult>>).

@@ -38,12 +38,30 @@ public static class ExpressionConverter
         IDictionary<string, string>? memberMap = null,
         Func<MemberExpression, ParameterExpression, Expression?>? customMap = null)
     {
+        var options = new ExpressionConverterOptions
+        {
+            MemberMap = memberMap,
+            CustomMap = customMap
+        };
+
+        return Convert(sourcePredicate, options);
+    }
+
+    /// <summary>
+    /// Converts a predicate expression using a configuration object.
+    /// </summary>
+    public static Expression<Func<TDestination, bool>> Convert<TSource, TDestination>(
+        Expression<Func<TSource, bool>> sourcePredicate,
+        ExpressionConverterOptions? options)
+    {
+        options ??= new ExpressionConverterOptions();
+
         // Use the source predicate's parameter name if available, otherwise default to "p".
         var sourceParameter = sourcePredicate.Parameters.FirstOrDefault();
         var parameterName = sourceParameter?.Name ?? "p";
         var replaceParam = Expression.Parameter(typeof(TDestination), parameterName);
 
-        var visitor = new Visitor<TSource, TDestination>(replaceParam, memberMap, customMap);
+        var visitor = new Visitor<TSource, TDestination>(replaceParam, options.MemberMap, options.CustomMap, options.ErrorHandling);
         var body = visitor.Visit(sourcePredicate.Body);
 
         if (body == null)
@@ -62,6 +80,7 @@ public static class ExpressionConverter
         private readonly ParameterExpression _replaceParam;
         private readonly IDictionary<string, string>? _memberMap;
         private readonly Func<MemberExpression, ParameterExpression, Expression?>? _customMap;
+        private readonly MemberMappingErrorHandling _errorHandling;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Visitor{TSource, TDestination}"/> class for converting expression trees between types.
@@ -71,11 +90,13 @@ public static class ExpressionConverter
         /// <param name="customMap">Optional callback to provide custom replacement expressions for member accesses; if it returns null, default mapping is used.</param>
         public Visitor(ParameterExpression replaceParam,
                        IDictionary<string, string>? memberMap,
-                       Func<MemberExpression, ParameterExpression, Expression?>? customMap)
+                       Func<MemberExpression, ParameterExpression, Expression?>? customMap,
+                       MemberMappingErrorHandling errorHandling)
         {
             _replaceParam = replaceParam;
             _memberMap = memberMap;
             _customMap = customMap;
+            _errorHandling = errorHandling;
         }
 
         /// <summary>
@@ -139,6 +160,11 @@ public static class ExpressionConverter
 
             if (destMembers == null || destMembers.Length == 0)
             {
+                if (_errorHandling == MemberMappingErrorHandling.Ignore)
+                {
+                    return Expression.Default(node.Type);
+                }
+
                 string onPathMessage;
                 if (visitedExpression == _replaceParam) {
                     onPathMessage = $"on destination type '{targetType.FullName}'";

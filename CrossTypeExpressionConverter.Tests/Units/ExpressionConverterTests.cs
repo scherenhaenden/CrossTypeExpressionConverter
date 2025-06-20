@@ -324,11 +324,24 @@ public class ExpressionConverterTests
         Expression<Func<SourceSimple, bool>> sourcePredicate = s => s.Id == 1;
         var memberMap = new Dictionary<string, string> { { nameof(SourceSimple.Id), "NonExistentDestProperty" } };
 
-        var ex = Assert.Throws<InvalidOperationException>(() => 
+        var ex = Assert.Throws<InvalidOperationException>(() =>
             ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate, memberMap)
         );
         Assert.That(ex.Message, Does.Contain("NonExistentDestProperty"));
         Assert.That(ex.Message, Does.Contain("could not be mapped"));
+    }
+
+    [Test]
+    public void Convert_MemberMissingOnDestination_WithIgnoreErrorHandling_ShouldNotThrow()
+    {
+        Expression<Func<SourceSimple, bool>> sourcePredicate = s => s.PropertyToIgnoreOnDest == "Test";
+        var options = new ExpressionConverterOptions { ErrorHandling = MemberMappingErrorHandling.Ignore };
+
+        // Should not throw
+        var converted = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate, options);
+
+        // Because the missing property is ignored, the resulting predicate always evaluates to default(bool) => false
+        Assert.IsFalse(Evaluate(converted, new DestSimple { Id = 1 }));
     }
 
     // --- Parameter Name Test ---
