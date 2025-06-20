@@ -3,14 +3,12 @@ using System.Linq.Expressions;
 namespace CrossTypeExpressionConverter.Tests.Units;
 
 /// <summary>
-/// Tests for <see cref="MappingUtils.BuildMemberMap{TSource,TDestination}"/>.
+/// Contains tests for the <see cref="MappingUtils.BuildMemberMap{TSource,TDestination}"/> helper method.
 /// </summary>
 [TestFixture]
 public class MappingUtilsTests
 {
-    // ─────────────────────────────────────────────────────────────────────
-    //  ✔ Dummy types just for these tests
-    // ─────────────────────────────────────────────────────────────────────
+    // --- Test-specific dummy types ---
     private class Source
     {
         public int    Id   { get; set; }
@@ -23,15 +21,15 @@ public class MappingUtilsTests
         public string? FullName { get; set; }
     }
 
-    //  Happy-path: direct one-to-one bindings
-    // ─────────────────────────────────────────────────────────────────────
     /// <summary>
-    /// Tests that a simple one-to-one mapping returns the correct dictionary.
+    /// Verifies that a simple, direct one-to-one property mapping expression
+    /// correctly builds a dictionary of source-to-destination member names.
     /// </summary>
     [Test]
-    public void BuildMemberMap_SimpleMapping_ReturnsCorrectDictionary()
+    public void BuildMemberMap_WithSimpleMapping_ShouldReturnCorrectDictionary()
     {
-        // src => new Dest { EntityId = src.Id, FullName = src.Name }
+        // Arrange
+        // The mapping expression uses a member-init expression with direct assignments.
         Expression<Func<Source, Dest>> mapping =
             src => new Dest
             {
@@ -39,37 +37,39 @@ public class MappingUtilsTests
                 FullName = src.Name
             };
 
+        // Act
         var dict = MappingUtils.BuildMemberMap(mapping);
 
+        // Assert
         Assert.That(dict, Has.Count.EqualTo(2));
-        Assert.That(dict["Id"],   Is.EqualTo("EntityId"));
+        Assert.That(dict["Id"], Is.EqualTo("EntityId"));
         Assert.That(dict["Name"], Is.EqualTo("FullName"));
     }
 
-    //  Guard-clause: body must be a MemberInitExpression
-    // ─────────────────────────────────────────────────────────────────────
     /// <summary>
-    /// Tests that building a member map with a non-MemberInitExpression throws an InvalidOperationException.
+    /// Verifies that providing a mapping expression that is not a MemberInitExpression
+    /// (e.g., a simple 'new' expression) throws an InvalidOperationException.
     /// </summary>
     [Test]
-    public void BuildMemberMap_NonMemberInit_ThrowsInvalidOperationException()
+    public void BuildMemberMap_WithNonMemberInitExpression_ShouldThrowInvalidOperationException()
     {
-        // No object-initializer => NewExpression, not MemberInitExpression
+        // Arrange
+        // This expression is a NewExpression, not a MemberInitExpression, because it lacks an object initializer.
         Expression<Func<Source, Dest>> mapping = src => new Dest();
 
-        Assert.Throws<InvalidOperationException>(
-            () => MappingUtils.BuildMemberMap(mapping));
+        // Act & Assert
+        Assert.That(() => MappingUtils.BuildMemberMap(mapping), Throws.InstanceOf<InvalidOperationException>());
     }
 
-    //  Only *direct* member accesses should be mapped
-    // ─────────────────────────────────────────────────────────────────────
     /// <summary>
-    /// Tests that non-direct member assignments are ignored in member mapping.
+    /// Verifies that the builder correctly ignores assignments that are not direct
+    /// member accesses (e.g., those involving operators or method calls).
     /// </summary>
     [Test]
-    public void BuildMemberMap_IgnoresNonDirectMemberAssignments()
+    public void BuildMemberMap_ShouldIgnoreNonDirectMemberAssignments()
     {
-        // FullName uses the null-coalescing operator – not a plain MemberExpression
+        // Arrange
+        // 'FullName' uses the null-coalescing operator, which is a BinaryExpression, not a direct MemberExpression.
         Expression<Func<Source, Dest>> mapping =
             src => new Dest
             {
@@ -77,12 +77,13 @@ public class MappingUtilsTests
                 FullName = src.Name ?? "N/A"
             };
 
+        // Act
         var dict = MappingUtils.BuildMemberMap(mapping);
 
+        // Assert
         Assert.That(dict, Has.Count.EqualTo(1));
-        Assert.That(dict.ContainsKey("Id"),   Is.True);
+        Assert.That(dict, Does.ContainKey("Id"), "Should map the direct member access.");
         Assert.That(dict["Id"], Is.EqualTo("EntityId"));
-        Assert.That(dict.ContainsKey("Name"), Is.False,
-            "Bindings that are not simple member-accesses should be skipped.");
+        Assert.That(dict, Does.Not.ContainKey("Name"), "Bindings that are not simple member accesses should be skipped.");
     }
 }
