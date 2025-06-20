@@ -2,9 +2,6 @@ name: Release Artifacts
 
 on:
   push:
-    branches:
-      - 'version/**'
-      - '**'
     tags:
       - 'v*'
   workflow_dispatch:
