@@ -15,37 +15,12 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/scherenhaenden/CrossTypeExpressionConverter</RepositoryUrl>
-    </PropertyGroup>
-
-    <Target Name="CopyReadme" BeforeTargets="Pack">
-        <Copy SourceFiles="$(SolutionDir)README.md"
-              DestinationFiles="$(ProjectDir)README.md" />
-    </Target>
-
-    <Target Name="CopyReadmev2" BeforeTargets="Pack">
-        <Copy SourceFiles="$(SolutionDir)README.md"
-              DestinationFiles="$(ProjectDir)/docs/README.md" />
-        
-    </Target>
-    <PropertyGroup>
 
         <PackageReadmeFile>README.md</PackageReadmeFile>
-
     </PropertyGroup>
-    <ItemGroup>
-      <None Update="README.md">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-    </ItemGroup>
 
     <ItemGroup>
-
-        <None Include="$(SolutionDir)/docs/README.md" Pack="true" PackagePath="\"/>
-
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="docs\" />
+        <None Include="../README.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
 </Project>

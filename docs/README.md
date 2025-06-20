@@ -4,9 +4,37 @@
 
 [![NuGet Downloads](https://img.shields.io/nuget/dt/CrossTypeExpressionConverter.svg?style=flat-square)](https://www.nuget.org/packages/CrossTypeExpressionConverter/)
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/scherenhaenden/CrossTypeExpressionConverter/dotnet.yml?branch=main&style=flat-square)](https://github.com/scherenhaenden/CrossTypeExpressionConverter/actions)
+[![Release](https://img.shields.io/github/actions/workflow/status/scherenhaenden/CrossTypeExpressionConverter/github-release.yml?style=flat-square)](https://github.com/scherenhaenden/CrossTypeExpressionConverter/actions/workflows/github-release.yml)
 
-[![License](https://img.shields.io/github/license/scherenhaenden/CrossTypeExpressionConverter.svg?style=flat-square)](https://github.com/scherenhaenden/CrossTypeExpressionConverter/blob/main/LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/scherenhaenden/CrossTypeExpressionConverter/blob/master/LICENSE)
+
+
+[![NuGet Version (pre-release)](https://img.shields.io/nuget/vpre/CrossTypeExpressionConverter.svg?style=flat-square)](https://www.nuget.org/packages/CrossTypeExpressionConverter/)
+
+
+[![Last Release](https://img.shields.io/github/release-date/scherenhaenden/CrossTypeExpressionConverter?style=flat-square)](https://github.com/scherenhaenden/CrossTypeExpressionConverter/releases)
+
+
+[![Release Downloads](https://img.shields.io/github/downloads/scherenhaenden/CrossTypeExpressionConverter/latest/total?style=flat-square)](https://github.com/scherenhaenden/CrossTypeExpressionConverter/releases/latest)
+
+<!-- Quality gate status -->
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=scherenhaenden_CrossTypeExpressionConverter&metric=alert_status)](https://sonarcloud.io/dashboard?id=scherenhaenden_CrossTypeExpressionConverter)
+
+<!-- Coverage % -->
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=scherenhaenden_CrossTypeExpressionConverter&metric=coverage)](https://sonarcloud.io/dashboard?id=scherenhaenden_CrossTypeExpressionConverter)
+
+
+
+![Developed with Rider](https://img.shields.io/badge/Developed%20with-Rider-14345E?style=flat-square\&logo=jetbrains)
+
+![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?style=flat-square)
+
+![C#](https://img.shields.io/badge/C%23-11-239120?style=flat-square\&logo=c-sharp\&logoColor=white)
+
+![macOS](https://img.shields.io/badge/macOS-000000?style=flat-square\&logo=apple)
+![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat-square\&logo=linux\&logoColor=black)
+![Windows](https://img.shields.io/badge/Windows-0078D6?style=flat-square\&logo=windows\&logoColor=white)
+
 
 **CrossTypeExpressionConverter** is a .NET library designed to seamlessly translate LINQ predicate expressions (`Expression<Func<TSource, bool>>`) from a source type (`TSource`) to an equivalent expression for a destination type (`TDestination`). This is particularly powerful when working with different layers in your application, such as mapping query logic between domain entities and Data Transfer Objects (DTOs), while ensuring full compatibility with `IQueryable` providers like Entity Framework Core for efficient server-side query execution.
 
@@ -231,7 +259,7 @@ Please ensure that any new code includes appropriate unit tests.
 
 ## ⚖️ License
 
-This project is licensed under the **MIT License**. See the [LICENSE](https://www.google.com/url?sa=E&source=gmail&q=https://github.com/scherenhaenden/CrossTypeExpressionConverter/blob/main/LICENSE) file for details.
+This project is licensed under the **MIT License**. See the [LICENSE](https://www.google.com/url?sa=E&source=gmail&q=https://github.com/scherenhaenden/CrossTypeExpressionConverter/blob/master/LICENSE) file for details.
 
 ---
 
