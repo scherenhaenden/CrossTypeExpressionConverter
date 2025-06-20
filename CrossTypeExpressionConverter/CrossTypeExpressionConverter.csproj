@@ -45,9 +45,7 @@
     </ItemGroup>
 
     <ItemGroup>
-
-        <None Include="$(ProjectDir)/docs/README.md" Pack="true" PackagePath="\"/>
-
+      <Folder Include="docs\" />
     </ItemGroup>
 
 </Project>
