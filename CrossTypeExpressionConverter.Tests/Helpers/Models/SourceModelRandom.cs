@@ -11,7 +11,9 @@ namespace CrossTypeExpressionConverter.Tests.Helpers.Models.Randomized
         public decimal OriginalAmount { get; set; }
         public int? NullableInt { get; set; }
 
-        // Helper to create a descriptive string for debugging
+        /// <summary>
+        /// Creates a descriptive string representation of the model for debugging.
+        /// </summary>
         public override string ToString()
         {
             return $"SourceModelRandom(Id={OriginalId}, Name='{OriginalName}', Value={OriginalValue}, Date={OriginalDate:yyyy-MM-dd HH:mm:ss}, Flag={OriginalFlag}, Guid={OriginalGuid}, Amount={OriginalAmount}, NullableInt={NullableInt?.ToString() ?? "null"})";
@@ -33,7 +35,9 @@ namespace CrossTypeExpressionConverter.Tests.Helpers.Models.Randomized
         public decimal MappedTransactionValue { get; set; } // from OriginalAmount
         public int? MappedOptionalNumber { get; set; } // from NullableInt
 
-        // Helper to create a descriptive string for debugging
+        /// <summary>
+        /// Creates a descriptive string representation of the object for debugging purposes.
+        /// </summary>
         public override string ToString()
         {
             return $"DestinationModelRandomMapped(EntityId={MappedEntityId}, FullName='{MappedFullName}', NumericData={MappedNumericData}, Timestamp={MappedTimestamp:yyyy-MM-dd HH:mm:ss}, IsEnabled={MappedIsEnabled}, UniqueId={MappedUniqueId}, TransactionValue={MappedTransactionValue}, OptionalNumber={MappedOptionalNumber?.ToString() ?? "null"})";
