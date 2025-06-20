@@ -21,16 +21,26 @@ jobs:
         id: vars
         run: |
           ref="${GITHUB_REF}"
+          version="" # Initialize version
           if [[ "$ref" == refs/heads/version/* ]]; then
             version="${ref#refs/heads/version/}"
           elif [[ "$ref" == refs/tags/v* ]]; then
             version="${ref#refs/tags/v}"
           else
-            echo "Unexpected ref: $ref" >&2
-            exit 1
+            echo "::warning::Workflow triggered by non-release ref: $ref. No version will be determined for this run."
+            # Optionally, you could set a default version here, e.g.:
+            # version="unspecified"
+            # Or you could exit if this is truly an error for non-release branches:
+            exit 0 # Exit successfully if you want the workflow to continue without a version
+            # exit 1 # Or exit with an error if this is truly unexpected
           fi
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "VERSION=$version" >> "$GITHUB_ENV"
+
+          if [[ -n "$version" ]]; then
+            echo "version=$version" >> "$GITHUB_OUTPUT"
+            echo "VERSION=$version" >> "$GITHUB_ENV"
+          else
+            echo "::warning::No version could be determined. Subsequent steps relying on 'version' might fail."
+          fi
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
