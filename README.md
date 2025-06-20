@@ -17,6 +17,12 @@
 
 [![Release Downloads](https://img.shields.io/github/downloads/scherenhaenden/CrossTypeExpressionConverter/latest/total?style=flat-square)](https://github.com/scherenhaenden/CrossTypeExpressionConverter/releases/latest)
 
+<!-- Quality gate status -->
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=scherenhaenden_CrossTypeExpressionConverter&metric=alert_status)](https://sonarcloud.io/dashboard?id=scherenhaenden_CrossTypeExpressionConverter)
+
+<!-- Coverage % -->
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=scherenhaenden_CrossTypeExpressionConverter&metric=coverage)](https://sonarcloud.io/dashboard?id=scherenhaenden_CrossTypeExpressionConverter)
+
 
 
 ![Developed with Rider](https://img.shields.io/badge/Developed%20with-Rider-14345E?style=flat-square\&logo=jetbrains)
