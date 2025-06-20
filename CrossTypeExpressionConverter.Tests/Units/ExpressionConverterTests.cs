@@ -331,6 +331,29 @@ public class ExpressionConverterTests
         Assert.That(ex.Message, Does.Contain("could not be mapped"));
     }
 
+    [Test]
+    public void Convert_MemberMissingOnDestination_NoMap_ShouldNotThrow_WhenOptionDisabled()
+    {
+        Expression<Func<SourceSimple, bool>> sourcePredicate = s => s.PropertyToIgnoreOnDest == "Test";
+        var options = new ExpressionConverterOptions { ThrowOnFailedMemberMapping = false };
+
+        var converted = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate, null, null, options);
+
+        Assert.IsFalse(Evaluate(converted, new DestSimple()));
+    }
+
+    [Test]
+    public void Convert_MemberMissingOnDestination_WithMemberMapToNonExistent_ShouldNotThrow_WhenOptionDisabled()
+    {
+        Expression<Func<SourceSimple, bool>> sourcePredicate = s => s.Id == 1;
+        var memberMap = new Dictionary<string, string> { { nameof(SourceSimple.Id), "NonExistentDestProperty" } };
+        var options = new ExpressionConverterOptions { ThrowOnFailedMemberMapping = false };
+
+        var converted = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate, memberMap, null, options);
+
+        Assert.IsFalse(Evaluate(converted, new DestSimple { Id = 1 }));
+    }
+
     // --- Parameter Name Test ---
     [Test]
     public void Convert_ShouldUseSourceParameterName_IfExists()
