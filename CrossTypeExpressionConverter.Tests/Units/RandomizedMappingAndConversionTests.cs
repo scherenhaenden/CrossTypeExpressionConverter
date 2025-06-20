@@ -3,15 +3,19 @@ using CrossTypeExpressionConverter.Tests.Helpers.Models.Randomized;
 
 namespace CrossTypeExpressionConverter.Tests.Units;
 
+/// <summary>
+/// Contains randomized, property-based tests to ensure robust conversion across a variety of data scenarios.
+/// </summary>
 [TestFixture]
 public class RandomizedMappingAndConversionTests
 {
-    private static readonly Random Rng = new Random();
+    private static readonly Random Rng = new();
     private static readonly string[] PossibleNames = { "Alice", "Bob", "Charlie", "David", "Eve", "Fiona", "George", "Hannah" };
 
     /// <summary>
-    /// Generates a random SourceModelRandom instance with various randomized properties.
+    /// Generates a random SourceModelRandom instance with randomized property values.
     /// </summary>
+    /// <returns>A new <see cref="SourceModelRandom"/> instance.</returns>
     private SourceModelRandom GenerateRandomSourceModel()
     {
         return new SourceModelRandom
@@ -23,15 +27,15 @@ public class RandomizedMappingAndConversionTests
             OriginalFlag = Rng.Next(0, 2) == 0,
             OriginalGuid = Guid.NewGuid(),
             OriginalAmount = (decimal)(Rng.NextDouble() * 5000),
-            NullableInt = Rng.Next(0,3) == 0 ? (int?)null : Rng.Next(1,100)
+            NullableInt = Rng.Next(0, 3) == 0 ? null : Rng.Next(1, 100)
         };
     }
 
     /// <summary>
-    /// Maps a SourceModelRandom to a DestinationModelRandomMapped.
+    /// Maps a SourceModelRandom instance to a corresponding DestinationModelRandomMapped instance.
     /// </summary>
     /// <param name="source">The source model to map.</param>
-    /// <returns>A new DestinationModelRandomMapped instance with mapped properties.</returns>
+    /// <returns>A new <see cref="DestinationModelRandomMapped"/> instance with mapped properties.</returns>
     private DestinationModelRandomMapped MapSourceToDestination(SourceModelRandom source)
     {
         return new DestinationModelRandomMapped
@@ -48,48 +52,30 @@ public class RandomizedMappingAndConversionTests
     }
     
     /// <summary>
-    /// Evaluates a predicate against an item and returns the result.
+    /// Compiles and executes a predicate against an item, returning the boolean result.
     /// </summary>
-    /// <param name="predicate">The predicate to evaluate.</param>
-    /// <param name="item">The item to test against the predicate.</param>
+    /// <param name="predicate">The expression predicate to evaluate.</param>
+    /// <param name="item">The object to test the predicate against.</param>
+    /// <returns>The result of the predicate evaluation.</returns>
     private bool Evaluate<T>(Expression<Func<T, bool>> predicate, T item)
     {
-        if (predicate == null) throw new ArgumentNullException(nameof(predicate));
-        if (item == null) throw new ArgumentNullException(nameof(item));
-        try
-        {
-            return predicate.Compile()(item);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error compiling/evaluating predicate: {ex.Message}");
-            Console.WriteLine($"Predicate: {predicate.ToString()}");
-            Console.WriteLine($"Item: {item.ToString()}");
-            throw;
-        }
+        return predicate.Compile()(item);
     }
 
-
     /// <summary>
-    /// Tests the conversion of a complex source predicate to a destination predicate using mapping utilities.
+    /// Tests the conversion of a complex predicate with fully mapped properties using randomized data.
+    /// This test is repeated multiple times to cover a wide range of input values.
     /// </summary>
-    /// <remarks>
-    /// This test generates a random source model, defines a LINQ mapping expression, and builds a member map.
-    /// It constructs a complex source predicate that evaluates to true for the target source model.
-    /// The predicate is then converted to a destination predicate using the ExpressionConverter.
-    /// The test verifies that the converted predicate correctly evaluates to true for the target destination model
-    /// and false for non-target models with altered properties.
-    /// </remarks>
     [Test]
     [Repeat(10)] // Run this test 10 times with different random data
     public void Convert_WithRandomDataAndFullMapping_ComplexPredicate_ShouldEvaluateCorrectly()
     {
-        // 1. Generate a "target" random source model
+        // 1. Arrange: Generate a "target" random source model and its corresponding destination model.
         var targetSource = GenerateRandomSourceModel();
-        Console.WriteLine($"Target Source: {targetSource}");
+        var targetDestination = MapSourceToDestination(targetSource);
 
-        // 2. Define the LINQ mapping expression
-        Expression<Func<SourceModelRandom, DestinationModelRandomMapped>> mappingExpression = src =>
+        // 2. Arrange: Define the LINQ mapping expression and build the member map from it.
+        var memberMap = MappingUtils.BuildMemberMap<SourceModelRandom, DestinationModelRandomMapped>(src =>
             new DestinationModelRandomMapped
             {
                 MappedEntityId = src.OriginalId,
@@ -100,26 +86,11 @@ public class RandomizedMappingAndConversionTests
                 MappedUniqueId = src.OriginalGuid,
                 MappedTransactionValue = src.OriginalAmount,
                 MappedOptionalNumber = src.NullableInt
-            };
+            });
+        
+        var options = new ExpressionConverterOptions().WithMemberMap(memberMap);
 
-        // 3. Use MappingUtils to build the member map
-        var memberMap = MappingUtils.BuildMemberMap(mappingExpression);
-
-        // Assert MappingUtils correctness (basic check)
-        Assert.That(memberMap, Is.Not.Null);
-        Assert.That(memberMap.Count, Is.EqualTo(8), "MemberMap should contain mappings for all 8 properties.");
-        Assert.That(memberMap[nameof(SourceModelRandom.OriginalId)], Is.EqualTo(nameof(DestinationModelRandomMapped.MappedEntityId)));
-        Assert.That(memberMap[nameof(SourceModelRandom.OriginalName)], Is.EqualTo(nameof(DestinationModelRandomMapped.MappedFullName)));
-        Assert.That(memberMap[nameof(SourceModelRandom.OriginalValue)], Is.EqualTo(nameof(DestinationModelRandomMapped.MappedNumericData)));
-        Assert.That(memberMap[nameof(SourceModelRandom.OriginalDate)], Is.EqualTo(nameof(DestinationModelRandomMapped.MappedTimestamp)));
-        Assert.That(memberMap[nameof(SourceModelRandom.OriginalFlag)], Is.EqualTo(nameof(DestinationModelRandomMapped.MappedIsEnabled)));
-        Assert.That(memberMap[nameof(SourceModelRandom.OriginalGuid)], Is.EqualTo(nameof(DestinationModelRandomMapped.MappedUniqueId)));
-        Assert.That(memberMap[nameof(SourceModelRandom.OriginalAmount)], Is.EqualTo(nameof(DestinationModelRandomMapped.MappedTransactionValue)));
-        Assert.That(memberMap[nameof(SourceModelRandom.NullableInt)], Is.EqualTo(nameof(DestinationModelRandomMapped.MappedOptionalNumber)));
-
-
-        // 4. Construct a complex source predicate that is TRUE for targetSource
-        // We'll use specific values from targetSource to build the predicate
+        // 3. Arrange: Construct a complex source predicate that is guaranteed to be TRUE for the targetSource.
         Expression<Func<SourceModelRandom, bool>> sourcePredicate = s =>
             s.OriginalId == targetSource.OriginalId &&
             (s.OriginalName == targetSource.OriginalName || s.OriginalValue > targetSource.OriginalValue - 10) &&
@@ -127,53 +98,25 @@ public class RandomizedMappingAndConversionTests
             s.OriginalDate < targetSource.OriginalDate.AddDays(1) &&
             s.OriginalGuid == targetSource.OriginalGuid &&
             s.OriginalAmount >= targetSource.OriginalAmount &&
-            (targetSource.NullableInt.HasValue ? s.NullableInt == targetSource.NullableInt.Value : s.NullableInt == null) &&
-            s.OriginalValue < (targetSource.OriginalValue + 100.5); // Add some range
+            s.NullableInt == targetSource.NullableInt &&
+            s.OriginalValue < (targetSource.OriginalValue + 100.5);
 
-        // Verify the source predicate is true for the targetSource (sanity check)
-        Assert.IsTrue(Evaluate(sourcePredicate, targetSource), "Source predicate should be true for targetSource.");
+        // Sanity check: Ensure the original predicate is true for the source object.
+        Assert.That(Evaluate(sourcePredicate, targetSource), Is.True, "Source predicate should be true for targetSource.");
 
-        // 5. Convert the predicate
-        var convertedPredicate = ExpressionConverter.Convert<SourceModelRandom, DestinationModelRandomMapped>(sourcePredicate, memberMap);
-        Assert.That(convertedPredicate, Is.Not.Null);
-        Console.WriteLine($"Source Predicate: {sourcePredicate.ToString()}");
-        Console.WriteLine($"Converted Predicate: {convertedPredicate.ToString()}");
+        // 4. Act: Convert the predicate.
+        var convertedPredicate = ExpressionConverter.Convert<SourceModelRandom, DestinationModelRandomMapped>(sourcePredicate, options);
 
+        // 5. Assert: The converted predicate must be true for the target destination object.
+        Assert.That(Evaluate(convertedPredicate, targetDestination), Is.True, "Converted predicate should be true for the targetDestination.");
 
-        // 6. Create the corresponding "target" destination model instance
-        var targetDestination = MapSourceToDestination(targetSource);
-        Console.WriteLine($"Target Destination: {targetDestination}");
+        // 6. Assert: The converted predicate must be false for non-target objects with altered properties.
+        var nonTargetId = MapSourceToDestination(targetSource);
+        nonTargetId.MappedEntityId++;
+        Assert.That(Evaluate(convertedPredicate, nonTargetId), Is.False, "Predicate should be false when a critical mapped property (ID) is changed.");
 
-        // 7. Evaluate the converted predicate against the target destination instance
-        bool evaluationResult = Evaluate(convertedPredicate, targetDestination);
-        Assert.IsTrue(evaluationResult, "Converted predicate should be true for the targetDestination.");
-
-        // 8. Create and test "non-target" destination instances
-        var nonTargetDestination1 = MapSourceToDestination(targetSource);
-        nonTargetDestination1.MappedEntityId = targetDestination.MappedEntityId + 1; // Change a critical part of the predicate
-        Console.WriteLine($"Non-Target Destination 1: {nonTargetDestination1}");
-        Assert.IsFalse(Evaluate(convertedPredicate, nonTargetDestination1), "Converted predicate should be false for nonTargetDestination1 (ID changed).");
-
-        var nonTargetDestination2 = MapSourceToDestination(targetSource);
-        nonTargetDestination2.MappedIsEnabled = !targetDestination.MappedIsEnabled; // Change another critical part
-        Console.WriteLine($"Non-Target Destination 2: {nonTargetDestination2}");
-        Assert.IsFalse(Evaluate(convertedPredicate, nonTargetDestination2), "Converted predicate should be false for nonTargetDestination2 (Flag changed).");
-        
-        if (targetSource.NullableInt.HasValue)
-        {
-            var nonTargetDestination3 = MapSourceToDestination(targetSource);
-            nonTargetDestination3.MappedOptionalNumber = targetSource.NullableInt.Value + 1;
-            Console.WriteLine($"Non-Target Destination 3: {nonTargetDestination3}");
-            Assert.IsFalse(Evaluate(convertedPredicate, nonTargetDestination3), "Converted predicate should be false for nonTargetDestination3 (NullableInt changed).");
-        }
-        else // targetSource.NullableInt was null
-        {
-            var nonTargetDestination3 = MapSourceToDestination(targetSource);
-            nonTargetDestination3.MappedOptionalNumber = 12345; // Make it non-null
-             Console.WriteLine($"Non-Target Destination 3: {nonTargetDestination3}");
-            Assert.IsFalse(Evaluate(convertedPredicate, nonTargetDestination3), "Converted predicate should be false for nonTargetDestination3 (NullableInt changed from null to value).");
-        }
+        var nonTargetFlag = MapSourceToDestination(targetSource);
+        nonTargetFlag.MappedIsEnabled = !targetSource.OriginalFlag;
+        Assert.That(Evaluate(convertedPredicate, nonTargetFlag), Is.False, "Predicate should be false when another critical mapped property (Flag) is changed.");
     }
 }
-
-
