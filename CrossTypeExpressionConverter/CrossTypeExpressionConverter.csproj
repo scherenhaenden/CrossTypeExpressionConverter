@@ -14,6 +14,7 @@
         <PackageProjectUrl>https://github.com/scherenhaenden/CrossTypeExpressionConverter</PackageProjectUrl>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageLicenseUrl>https://github.com/scherenhaenden/CrossTypeExpressionConverter</PackageLicenseUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/scherenhaenden/CrossTypeExpressionConverter</RepositoryUrl>
     </PropertyGroup>
 

@@ -1,0 +1,102 @@
+name: Release Artifacts
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write 
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine version
+        id: vars
+        run: |
+          ref="${GITHUB_REF}"
+          version="" # Initialize version
+          if [[ "$ref" == refs/heads/version/* ]]; then
+            version="${ref#refs/heads/version/}"
+          elif [[ "$ref" == refs/tags/v* ]]; then
+            version="${ref#refs/tags/v}"
+          else
+            echo "::warning::Workflow triggered by non-release ref: $ref. No version will be determined for this run."
+            # Optionally, you could set a default version here, e.g.:
+            # version="unspecified"
+            # Or you could exit if this is truly an error for non-release branches:
+            exit 0 # Exit successfully if you want the workflow to continue without a version
+            # exit 1 # Or exit with an error if this is truly unexpected
+          fi
+
+          if [[ -n "$version" ]]; then
+            echo "version=$version" >> "$GITHUB_OUTPUT"
+            echo "VERSION=$version" >> "$GITHUB_ENV"
+          else
+            echo "::warning::No version could be determined. Subsequent steps relying on 'version' might fail."
+          fi
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+          include-prerelease: true
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build CrossTypeExpressionConverter.sln -c Release --no-restore
+
+      - name: Pack
+        run: dotnet pack CrossTypeExpressionConverter.sln -c Release --no-build -o package
+
+      - name: Create sources archive
+        run: git archive --format zip --output sources.zip HEAD
+
+      - name: Package DLL
+        run: |
+          zip CrossTypeExpressionConverter-${{ steps.vars.outputs.version }}-dll.zip CrossTypeExpressionConverter/bin/Release/net8.0/CrossTypeExpressionConverter.dll
+
+      - name: Upload DLL artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CrossTypeExpressionConverter-${{ steps.vars.outputs.version }}-dll
+          path: CrossTypeExpressionConverter-${{ steps.vars.outputs.version }}-dll.zip
+
+      - name: Upload source archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: sources-${{ steps.vars.outputs.version }}
+          path: sources.zip
+
+      - name: Upload NuGet package
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-${{ steps.vars.outputs.version }}
+          path: package/*.nupkg
+
+      - name: Create tag
+        if: startsWith(github.ref, 'refs/heads/version/')
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git tag -a "v${{ steps.vars.outputs.version }}" -m "Release ${{ steps.vars.outputs.version }}"
+          git push origin "v${{ steps.vars.outputs.version }}"
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.vars.outputs.version }}
+          name: Release ${{ steps.vars.outputs.version }}
+          files: |
+            CrossTypeExpressionConverter-${{ steps.vars.outputs.version }}-dll.zip
+            package/*.nupkg
+            sources.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

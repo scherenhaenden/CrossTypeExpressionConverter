@@ -4,17 +4,26 @@
 
 [![NuGet Downloads](https://img.shields.io/nuget/dt/CrossTypeExpressionConverter.svg?style=flat-square)](https://www.nuget.org/packages/CrossTypeExpressionConverter/)
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/scherenhaenden/CrossTypeExpressionConverter/dotnet.yml?branch=main&style=flat-square)](https://github.com/scherenhaenden/CrossTypeExpressionConverter/actions)
+[![Release](https://img.shields.io/github/actions/workflow/status/scherenhaenden/CrossTypeExpressionConverter/github-release.yml?style=flat-square)](https://github.com/scherenhaenden/CrossTypeExpressionConverter/actions/workflows/github-release.yml)
 
-[![License](https://img.shields.io/github/license/scherenhaenden/CrossTypeExpressionConverter.svg?style=flat-square)](https://github.com/scherenhaenden/CrossTypeExpressionConverter/blob/main/LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/scherenhaenden/CrossTypeExpressionConverter/blob/master/LICENSE)
+
 
 [![NuGet Version (pre-release)](https://img.shields.io/nuget/vpre/CrossTypeExpressionConverter.svg?style=flat-square)](https://www.nuget.org/packages/CrossTypeExpressionConverter/)
 
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/scherenhaenden/CrossTypeExpressionConverter?style=flat-square)](https://github.com/scherenhaenden/CrossTypeExpressionConverter/releases/latest)
 
-[![GitHub Release Downloads](https://img.shields.io/github/downloads/scherenhaenden/CrossTypeExpressionConverter/total?style=flat-square)](https://github.com/scherenhaenden/CrossTypeExpressionConverter/releases)
+[![Last Release](https://img.shields.io/github/release-date/scherenhaenden/CrossTypeExpressionConverter?style=flat-square)](https://github.com/scherenhaenden/CrossTypeExpressionConverter/releases)
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/scherenhaenden/CrossTypeExpressionConverter/dotnet.yml?branch=main\&style=flat-square)](https://github.com/scherenhaenden/CrossTypeExpressionConverter/actions)
+
+[![Release Downloads](https://img.shields.io/github/downloads/scherenhaenden/CrossTypeExpressionConverter/latest/total?style=flat-square)](https://github.com/scherenhaenden/CrossTypeExpressionConverter/releases/latest)
+
+<!-- Quality gate status -->
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=scherenhaenden_CrossTypeExpressionConverter&metric=alert_status)](https://sonarcloud.io/dashboard?id=scherenhaenden_CrossTypeExpressionConverter)
+
+<!-- Coverage % -->
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=scherenhaenden_CrossTypeExpressionConverter&metric=coverage)](https://sonarcloud.io/dashboard?id=scherenhaenden_CrossTypeExpressionConverter)
+
+
 
 ![Developed with Rider](https://img.shields.io/badge/Developed%20with-Rider-14345E?style=flat-square\&logo=jetbrains)
 
@@ -250,7 +259,7 @@ Please ensure that any new code includes appropriate unit tests.
 
 ## ⚖️ License
 
-This project is licensed under the **MIT License**. See the [LICENSE](https://www.google.com/url?sa=E&source=gmail&q=https://github.com/scherenhaenden/CrossTypeExpressionConverter/blob/main/LICENSE) file for details.
+This project is licensed under the **MIT License**. See the [LICENSE](https://www.google.com/url?sa=E&source=gmail&q=https://github.com/scherenhaenden/CrossTypeExpressionConverter/blob/master/LICENSE) file for details.
 
 ---
 
