@@ -95,7 +95,7 @@ public sealed class ExpressionConverter : IExpressionConverter
             if (visitedExpression == null)
             {
                 // This should not happen in a valid expression tree.
-                throw new InvalidOperationException($"Failed to visit the expression for member '{node.Member.Name}'.");
+                throw new InvalidOperationException($"Failed to visit the expression for member '{node.Member.Name}'. Source: {node.Expression}");
             }
 
             // Step 3: Determine the source and destination member names.
