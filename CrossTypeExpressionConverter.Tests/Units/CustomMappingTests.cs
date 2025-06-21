@@ -35,7 +35,7 @@ public class CustomMappingTests
         var options = new ExpressionConverterOptions().WithCustomMap(customMap);
 
         // Act
-        var convertedPredicate = ExpressionConverter.Convert<SourceForCustomMap, DestForCustomMap>(sourcePredicate, options);
+        var convertedPredicate = ExpressionConverterFacade.Convert<SourceForCustomMap, DestForCustomMap>(sourcePredicate, options);
 
         // Assert
         Assert.That(TestUtils.Evaluate(convertedPredicate, new DestForCustomMap { TransformedData = "PREFIX_Original" }), Is.True);
@@ -71,7 +71,7 @@ public class CustomMappingTests
         var options = new ExpressionConverterOptions().WithCustomMap(customMap);
 
         // Act
-        var convertedPredicate = ExpressionConverter.Convert<SourceForCustomMap, DestForCustomMap>(sourcePredicate, options);
+        var convertedPredicate = ExpressionConverterFacade.Convert<SourceForCustomMap, DestForCustomMap>(sourcePredicate, options);
         
         // Assert
         // The converted predicate must be true for a destination object where DoubledValue is 20.

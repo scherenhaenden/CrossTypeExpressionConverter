@@ -26,7 +26,7 @@ public class ErrorHandlingTests
 
         // Act & Assert
         var ex = Assert.Throws<InvalidOperationException>(() => 
-            ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate, options)
+            ExpressionConverterFacade.Convert<SourceSimple, DestSimple>(sourcePredicate, options)
         );
         Assert.That(ex?.Message, Does.Contain(nameof(SourceSimple.PropertyToIgnoreOnDest)));
     }
@@ -44,7 +44,7 @@ public class ErrorHandlingTests
 
         // Act & Assert
         var ex = Assert.Throws<InvalidOperationException>(() => 
-            ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate, options)
+            ExpressionConverterFacade.Convert<SourceSimple, DestSimple>(sourcePredicate, options)
         );
         Assert.That(ex?.Message, Does.Contain("NonExistentDestProperty"));
     }
@@ -61,7 +61,7 @@ public class ErrorHandlingTests
         Expression<Func<SourceSimple, bool>> sourcePredicate = s => s.PropertyToIgnoreOnDest == "Test";
 
         // Act
-        var converted = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate, options);
+        var converted = ExpressionConverterFacade.Convert<SourceSimple, DestSimple>(sourcePredicate, options);
 
         // Assert: The predicate becomes (null == "Test"), which is false.
         Assert.That(TestUtils.Evaluate(converted, new DestSimple()), Is.False);
@@ -80,7 +80,7 @@ public class ErrorHandlingTests
         Expression<Func<SourceSimple, bool>> sourcePredicate = s => s.Id == 1;
 
         // Act
-        var converted = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate, options);
+        var converted = ExpressionConverterFacade.Convert<SourceSimple, DestSimple>(sourcePredicate, options);
         
         // Assert: The predicate becomes (0 == 1), which is false.
         Assert.That(TestUtils.Evaluate(converted, new DestSimple { Id = 99 }), Is.False);
@@ -99,7 +99,7 @@ public class ErrorHandlingTests
         Expression<Func<SourceSimple, bool>> sourcePredicate = s => s.PropertyToIgnoreOnDest == "A" || s.IsActive;
 
         // Act
-        var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate, options);
+        var convertedPredicate = ExpressionConverterFacade.Convert<SourceSimple, DestSimple>(sourcePredicate, options);
 
         // Assert: The predicate becomes (null == "A" || d.IsActive), which is equivalent to (false || d.IsActive).
         // It should be true if IsActive is true.

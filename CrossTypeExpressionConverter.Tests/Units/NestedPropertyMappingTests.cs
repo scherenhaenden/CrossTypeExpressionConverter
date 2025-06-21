@@ -27,7 +27,7 @@ public class NestedPropertyMappingTests
         Expression<Func<SourceWithNested, bool>> sourcePredicate = s => s.Child != null && s.Child.NestedId == 100;
 
         // Act
-        var convertedPredicate = ExpressionConverter.Convert<SourceWithNested, DestWithNested>(sourcePredicate);
+        var convertedPredicate = ExpressionConverterFacade.Convert<SourceWithNested, DestWithNested>(sourcePredicate);
 
         // Assert
         Assert.That(TestUtils.Evaluate(convertedPredicate, new DestWithNested { Child = new NestedDestProp { NestedId = 100 } }), Is.True);
@@ -67,7 +67,7 @@ public class NestedPropertyMappingTests
         var options = new ExpressionConverterOptions().WithCustomMap(customMap);
 
         // Act
-        var convertedPredicate = ExpressionConverter.Convert<SourceWithNested, DestWithNested>(sourcePredicate, options);
+        var convertedPredicate = ExpressionConverterFacade.Convert<SourceWithNested, DestWithNested>(sourcePredicate, options);
         
         // Assert
         Assert.That(TestUtils.Evaluate(convertedPredicate, new DestWithNested { MappedChild = new NestedDestPropDifferentName { InnerName = "DeepMap" } }), Is.True);
