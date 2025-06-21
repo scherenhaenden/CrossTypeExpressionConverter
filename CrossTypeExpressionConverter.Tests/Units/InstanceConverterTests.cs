@@ -6,7 +6,7 @@ using CrossTypeExpressionConverter.Tests.Helpers.Models;
 namespace CrossTypeExpressionConverter.Tests.Units;
 
 /// <summary>
-/// Tests for the <see cref="ExpressionConverterInstance"/> class.
+/// Tests for the <see cref="ExpressionConverter"/> class.
 /// </summary>
 [TestFixture]
 public class InstanceConverterTests
@@ -20,7 +20,7 @@ public class InstanceConverterTests
                 { nameof(SourceSimple.Name), nameof(DestDifferentNames.FullName) }
             });
 
-        var instance = new ExpressionConverterInstance(options);
+        var instance = new ExpressionConverter(options);
 
         Expression<Func<SourceSimple, bool>> predicate = s => s.Name == "MapTest";
         var converted = instance.Convert<SourceSimple, DestDifferentNames>(predicate);
@@ -39,7 +39,7 @@ public class InstanceConverterTests
                 { nameof(SourceSimple.Name), nameof(DestDifferentNames.FullName) }
             });
 
-        var instance = new ExpressionConverterInstance(options);
+        var instance = new ExpressionConverter(options);
         Expression<Func<SourceSimple, bool>> predicate = s => s.Name == "x" && s.PropertyToIgnoreOnDest == "y";
         var converted = instance.Convert<SourceSimple, DestDifferentNames>(predicate);
 
@@ -61,7 +61,7 @@ public class InstanceConverterTests
         };
 
         var options = new ExpressionConverterOptions().WithCustomMap(customMap);
-        var instance = new ExpressionConverterInstance(options);
+        var instance = new ExpressionConverter(options);
         var converted = instance.Convert<SourceForCustomMap, DestForCustomMap>(predicate);
 
         Assert.That(TestUtils.Evaluate(converted, new DestForCustomMap { TransformedData = "PREFIX_Original" }), Is.True);

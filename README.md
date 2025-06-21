@@ -62,13 +62,13 @@ Stop rewriting similar filter logic for different types! `CrossTypeExpressionCon
 You can install `CrossTypeExpressionConverter` via NuGet Package Manager:
 
 ```shell
-Install-Package CrossTypeExpressionConverter -Version 0.4.0
+Install-Package CrossTypeExpressionConverter -Version 0.4.1
 ```
 
 Or using the .NET CLI:
 
 ```shell
-dotnet add package CrossTypeExpressionConverter --version 0.4.0
+dotnet add package CrossTypeExpressionConverter --version 0.4.1
 ```
 
 ---
@@ -232,7 +232,7 @@ var options = new ExpressionConverterOptions()
         DateOfBirth = u.BirthDate
     }));
 
-services.AddSingleton<IExpressionConverter>(new ExpressionConverterInstance(options));
+services.AddSingleton<IExpressionConverter>(new ExpressionConverter(options));
 ```
 
 Inject `IExpressionConverter` into your services and use it:

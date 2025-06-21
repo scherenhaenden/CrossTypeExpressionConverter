@@ -20,7 +20,7 @@ public class MiscellaneousTests
         Expression<Func<SourceSimple, bool>> sourcePredicate = item => item.Id == 1; // The parameter name is "item".
 
         // Act
-        var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate);
+        var convertedPredicate = ExpressionConverterFacade.Convert<SourceSimple, DestSimple>(sourcePredicate);
         
         // Assert
         Assert.That(convertedPredicate.Parameters[0].Name, Is.EqualTo("item"));
@@ -42,7 +42,7 @@ public class MiscellaneousTests
         var expectedName = param.Name ?? "p";
 
         // Act
-        var converted = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate);
+        var converted = ExpressionConverterFacade.Convert<SourceSimple, DestSimple>(sourcePredicate);
         
         // Assert
         Assert.That(converted.Parameters[0].Name, Is.EqualTo(expectedName));
