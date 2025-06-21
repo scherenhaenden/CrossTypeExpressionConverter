@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using CrossTypeExpressionConverter.Tests.Helpers;
 using CrossTypeExpressionConverter.Tests.Helpers.Models.Randomized;
 
 namespace CrossTypeExpressionConverter.Tests.Units;
@@ -54,13 +55,7 @@ public class RandomizedMappingAndConversionTests
     /// <summary>
     /// Compiles and executes a predicate against an item, returning the boolean result.
     /// </summary>
-    /// <param name="predicate">The expression predicate to evaluate.</param>
-    /// <param name="item">The object to test the predicate against.</param>
-    /// <returns>The result of the predicate evaluation.</returns>
-    private bool Evaluate<T>(Expression<Func<T, bool>> predicate, T item)
-    {
-        return predicate.Compile()(item);
-    }
+
 
     /// <summary>
     /// Tests the conversion of a complex predicate with fully mapped properties using randomized data.
@@ -102,21 +97,21 @@ public class RandomizedMappingAndConversionTests
             s.OriginalValue < (targetSource.OriginalValue + 100.5);
 
         // Sanity check: Ensure the original predicate is true for the source object.
-        Assert.That(Evaluate(sourcePredicate, targetSource), Is.True, "Source predicate should be true for targetSource.");
+        Assert.That(TestUtils.Evaluate(sourcePredicate, targetSource), Is.True, "Source predicate should be true for targetSource.");
 
         // 4. Act: Convert the predicate.
         var convertedPredicate = ExpressionConverter.Convert<SourceModelRandom, DestinationModelRandomMapped>(sourcePredicate, options);
 
         // 5. Assert: The converted predicate must be true for the target destination object.
-        Assert.That(Evaluate(convertedPredicate, targetDestination), Is.True, "Converted predicate should be true for the targetDestination.");
+        Assert.That(TestUtils.Evaluate(convertedPredicate, targetDestination), Is.True, "Converted predicate should be true for the targetDestination.");
 
         // 6. Assert: The converted predicate must be false for non-target objects with altered properties.
         var nonTargetId = MapSourceToDestination(targetSource);
         nonTargetId.MappedEntityId++;
-        Assert.That(Evaluate(convertedPredicate, nonTargetId), Is.False, "Predicate should be false when a critical mapped property (ID) is changed.");
+        Assert.That(TestUtils.Evaluate(convertedPredicate, nonTargetId), Is.False, "Predicate should be false when a critical mapped property (ID) is changed.");
 
         var nonTargetFlag = MapSourceToDestination(targetSource);
         nonTargetFlag.MappedIsEnabled = !targetSource.OriginalFlag;
-        Assert.That(Evaluate(convertedPredicate, nonTargetFlag), Is.False, "Predicate should be false when another critical mapped property (Flag) is changed.");
+        Assert.That(TestUtils.Evaluate(convertedPredicate, nonTargetFlag), Is.False, "Predicate should be false when another critical mapped property (Flag) is changed.");
     }
 }

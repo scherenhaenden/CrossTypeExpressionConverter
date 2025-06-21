@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using CrossTypeExpressionConverter.Tests.Helpers;
 using CrossTypeExpressionConverter.Tests.Helpers.Models;
 
 namespace CrossTypeExpressionConverter.Tests.Units;
@@ -14,11 +15,7 @@ public class NestedPropertyMappingTests
     /// </summary>
     /// <param name="predicate">The expression predicate to evaluate.</param>
     /// <param name="item">The object to test the predicate against.</param>
-    /// <returns>The result of the predicate evaluation.</returns>
-    private bool Evaluate<T>(Expression<Func<T, bool>> predicate, T item)
-    {
-        return predicate.Compile()(item);
-    }
+
 
     /// <summary>
     /// Verifies that a predicate on a nested property is correctly converted when the property names are the same.
@@ -33,9 +30,9 @@ public class NestedPropertyMappingTests
         var convertedPredicate = ExpressionConverter.Convert<SourceWithNested, DestWithNested>(sourcePredicate);
 
         // Assert
-        Assert.That(Evaluate(convertedPredicate, new DestWithNested { Child = new NestedDestProp { NestedId = 100 } }), Is.True);
-        Assert.That(Evaluate(convertedPredicate, new DestWithNested { Child = new NestedDestProp { NestedId = 50 } }), Is.False);
-        Assert.That(Evaluate(convertedPredicate, new DestWithNested { Child = null }), Is.False);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestWithNested { Child = new NestedDestProp { NestedId = 100 } }), Is.True);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestWithNested { Child = new NestedDestProp { NestedId = 50 } }), Is.False);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestWithNested { Child = null }), Is.False);
     }
 
     /// <summary>
@@ -73,7 +70,7 @@ public class NestedPropertyMappingTests
         var convertedPredicate = ExpressionConverter.Convert<SourceWithNested, DestWithNested>(sourcePredicate, options);
         
         // Assert
-        Assert.That(Evaluate(convertedPredicate, new DestWithNested { MappedChild = new NestedDestPropDifferentName { InnerName = "DeepMap" } }), Is.True);
-        Assert.That(Evaluate(convertedPredicate, new DestWithNested { MappedChild = new NestedDestPropDifferentName { InnerName = "Wrong" } }), Is.False);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestWithNested { MappedChild = new NestedDestPropDifferentName { InnerName = "DeepMap" } }), Is.True);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestWithNested { MappedChild = new NestedDestPropDifferentName { InnerName = "Wrong" } }), Is.False);
     }
 }

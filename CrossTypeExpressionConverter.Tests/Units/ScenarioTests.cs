@@ -1,5 +1,6 @@
 using System;
 using System.Linq.Expressions;
+using CrossTypeExpressionConverter.Tests.Helpers;
 using CrossTypeExpressionConverter.Tests.Helpers.Models;
 
 namespace CrossTypeExpressionConverter.Tests.Units;
@@ -13,13 +14,7 @@ public class ScenarioTests
     /// <summary>
     /// Compiles and executes a predicate against an item, returning the boolean result.
     /// </summary>
-    /// <param name="predicate">The expression predicate to evaluate.</param>
-    /// <param name="item">The object to test the predicate against.</param>
-    /// <returns>The result of the predicate evaluation.</returns>
-    private bool Evaluate<T>(Expression<Func<T, bool>> predicate, T item)
-    {
-        return predicate.Compile()(item);
-    }
+
 
     /// <summary>
     /// Verifies conversion of a predicate on a string property between two complex, real-world-like models.
@@ -42,8 +37,8 @@ public class ScenarioTests
         var convertedPredicate = ExpressionConverter.Convert<NewsDataModel, ArticleDataModel>(sourcePredicate, options);
 
         // Assert
-        Assert.That(Evaluate(convertedPredicate, new ArticleDataModel { Title = "Breaking News" }), Is.True);
-        Assert.That(Evaluate(convertedPredicate, new ArticleDataModel { Title = "Old News" }), Is.False);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new ArticleDataModel { Title = "Breaking News" }), Is.True);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new ArticleDataModel { Title = "Old News" }), Is.False);
     }
 
     /// <summary>
@@ -66,8 +61,8 @@ public class ScenarioTests
         var convertedPredicate = ExpressionConverter.Convert<NewsDataModel, ArticleDataModel>(sourcePredicate, options);
 
         // Assert
-        Assert.That(Evaluate(convertedPredicate, new ArticleDataModel { PublicationDate = testDate.AddDays(1) }), Is.True);
-        Assert.That(Evaluate(convertedPredicate, new ArticleDataModel { PublicationDate = testDate.AddDays(-1) }), Is.False);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new ArticleDataModel { PublicationDate = testDate.AddDays(1) }), Is.True);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new ArticleDataModel { PublicationDate = testDate.AddDays(-1) }), Is.False);
     }
 
     /// <summary>
@@ -90,8 +85,8 @@ public class ScenarioTests
         var convertedPredicate = ExpressionConverter.Convert<SubjectDatabaseModel, SubjectsDatamodel>(sourcePredicate, options);
 
         // Assert
-        Assert.That(Evaluate(convertedPredicate, new SubjectsDatamodel { NameOfSubject = "Advanced Mathematics", Mandatory = true }), Is.True);
-        Assert.That(Evaluate(convertedPredicate, new SubjectsDatamodel { NameOfSubject = "History", Mandatory = true }), Is.False, "Should fail on name mismatch.");
-        Assert.That(Evaluate(convertedPredicate, new SubjectsDatamodel { NameOfSubject = "Basic Mathematics", Mandatory = false }), Is.False, "Should fail on mandatory flag mismatch.");
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new SubjectsDatamodel { NameOfSubject = "Advanced Mathematics", Mandatory = true }), Is.True);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new SubjectsDatamodel { NameOfSubject = "History", Mandatory = true }), Is.False, "Should fail on name mismatch.");
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new SubjectsDatamodel { NameOfSubject = "Basic Mathematics", Mandatory = false }), Is.False, "Should fail on mandatory flag mismatch.");
     }
 }

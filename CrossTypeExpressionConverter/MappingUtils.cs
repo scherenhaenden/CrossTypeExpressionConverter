@@ -5,12 +5,8 @@ namespace CrossTypeExpressionConverter;
 public static class MappingUtils
 {
     /// <summary>
-    /// Builds a name‑to‑name dictionary from a simple object‑initializer mapping
-    /// (  src => new Dest { DestProp = src.SrcProp, … }  ).
-    /// The resulting map has    SrcProp -> DestProp
-    /// which is exactly what <see cref="ExpressionConverter"/> expects.
-    /// <summary>
-    /// Builds a dictionary mapping source property names to destination property names based on a lambda expression using an object initializer.
+    /// Builds a dictionary mapping source property names to destination property names based
+    /// on a lambda expression that uses an object initializer (e.g. <c>src =&gt; new Dest { DestProp = src.SrcProp }</c>).
     /// </summary>
     /// <param name="mapping">
     /// A lambda expression that maps a source type to a destination type using an object initializer (e.g., <c>src => new Dest { DestProp = src.SrcProp }</c>).

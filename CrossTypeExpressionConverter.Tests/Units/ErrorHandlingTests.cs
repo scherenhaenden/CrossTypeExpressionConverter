@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using CrossTypeExpressionConverter.Tests.Helpers;
 using CrossTypeExpressionConverter.Tests.Helpers.Models;
 
 namespace CrossTypeExpressionConverter.Tests.Units;
@@ -10,16 +11,7 @@ namespace CrossTypeExpressionConverter.Tests.Units;
 [TestFixture]
 public class ErrorHandlingTests
 {
-    /// <summary>
-    /// Compiles and executes a predicate against an item, returning the boolean result.
-    /// </summary>
-    /// <param name="predicate">The expression predicate to evaluate.</param>
-    /// <param name="item">The object to test the predicate against.</param>
-    /// <returns>The result of the predicate evaluation.</returns>
-    private bool Evaluate<T>(Expression<Func<T, bool>> predicate, T item)
-    {
-        return predicate.Compile()(item);
-    }
+
 
     /// <summary>
     /// Verifies that the converter throws an InvalidOperationException by default when a member does not exist on the destination type.
@@ -72,7 +64,7 @@ public class ErrorHandlingTests
         var converted = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate, options);
 
         // Assert: The predicate becomes (null == "Test"), which is false.
-        Assert.That(Evaluate(converted, new DestSimple()), Is.False);
+        Assert.That(TestUtils.Evaluate(converted, new DestSimple()), Is.False);
     }
 
     /// <summary>
@@ -91,7 +83,7 @@ public class ErrorHandlingTests
         var converted = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate, options);
         
         // Assert: The predicate becomes (0 == 1), which is false.
-        Assert.That(Evaluate(converted, new DestSimple { Id = 99 }), Is.False);
+        Assert.That(TestUtils.Evaluate(converted, new DestSimple { Id = 99 }), Is.False);
     }
 
     /// <summary>
@@ -111,7 +103,7 @@ public class ErrorHandlingTests
 
         // Assert: The predicate becomes (null == "A" || d.IsActive), which is equivalent to (false || d.IsActive).
         // It should be true if IsActive is true.
-        Assert.That(Evaluate(convertedPredicate, new DestSimple { IsActive = true }), Is.True);
-        Assert.That(Evaluate(convertedPredicate, new DestSimple { IsActive = false }), Is.False);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestSimple { IsActive = true }), Is.True);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestSimple { IsActive = false }), Is.False);
     }
 }

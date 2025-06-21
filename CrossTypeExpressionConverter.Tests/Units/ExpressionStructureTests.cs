@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using CrossTypeExpressionConverter.Tests.Helpers;
 using CrossTypeExpressionConverter.Tests.Helpers.Models;
 
 namespace CrossTypeExpressionConverter.Tests.Units;
@@ -16,10 +17,7 @@ public class ExpressionStructureTests
     /// <param name="predicate">The expression predicate to evaluate.</param>
     /// <param name="item">The object to test the predicate against.</param>
     /// <returns>The result of the predicate evaluation.</returns>
-    private bool Evaluate<T>(Expression<Func<T, bool>> predicate, T item)
-    {
-        return predicate.Compile()(item);
-    }
+
 
     // --- Boolean Logic Tests ---
 
@@ -36,9 +34,9 @@ public class ExpressionStructureTests
         var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate);
 
         // Assert
-        Assert.That(Evaluate(convertedPredicate, new DestSimple { Id = 10, IsActive = true }), Is.True);
-        Assert.That(Evaluate(convertedPredicate, new DestSimple { Id = 3, IsActive = true }), Is.False);
-        Assert.That(Evaluate(convertedPredicate, new DestSimple { Id = 10, IsActive = false }), Is.False);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestSimple { Id = 10, IsActive = true }), Is.True);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestSimple { Id = 3, IsActive = true }), Is.False);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestSimple { Id = 10, IsActive = false }), Is.False);
     }
 
     /// <summary>
@@ -60,9 +58,9 @@ public class ExpressionStructureTests
         var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestDifferentNames>(sourcePredicate, options);
 
         // Assert
-        Assert.That(Evaluate(convertedPredicate, new DestDifferentNames { EntityId = 1, FullName = "Other" }), Is.True);
-        Assert.That(Evaluate(convertedPredicate, new DestDifferentNames { EntityId = 2, FullName = "Valid" }), Is.True);
-        Assert.That(Evaluate(convertedPredicate, new DestDifferentNames { EntityId = 2, FullName = "Other" }), Is.False);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestDifferentNames { EntityId = 1, FullName = "Other" }), Is.True);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestDifferentNames { EntityId = 2, FullName = "Valid" }), Is.True);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestDifferentNames { EntityId = 2, FullName = "Other" }), Is.False);
     }
 
     // --- Method Call Tests ---
@@ -80,9 +78,9 @@ public class ExpressionStructureTests
         var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate);
 
         // Assert
-        Assert.That(Evaluate(convertedPredicate, new DestSimple { Name = "PrefixValue" }), Is.True);
-        Assert.That(Evaluate(convertedPredicate, new DestSimple { Name = "NoPrefix" }), Is.False);
-        Assert.That(Evaluate(convertedPredicate, new DestSimple { Name = null }), Is.False);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestSimple { Name = "PrefixValue" }), Is.True);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestSimple { Name = "NoPrefix" }), Is.False);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestSimple { Name = null }), Is.False);
     }
 
     /// <summary>
@@ -100,8 +98,8 @@ public class ExpressionStructureTests
         var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestDifferentNames>(sourcePredicate, options);
 
         // Assert
-        Assert.That(Evaluate(convertedPredicate, new DestDifferentNames { FullName = "StartMiddleEnd" }), Is.True);
-        Assert.That(Evaluate(convertedPredicate, new DestDifferentNames { FullName = "NoMatch" }), Is.False);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestDifferentNames { FullName = "StartMiddleEnd" }), Is.True);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestDifferentNames { FullName = "NoMatch" }), Is.False);
     }
     
     // --- Constant Value Test ---
@@ -119,7 +117,7 @@ public class ExpressionStructureTests
         var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate);
 
         // Assert
-        Assert.That(Evaluate(convertedPredicate, new DestSimple { Id = 1 }), Is.True);
-        Assert.That(Evaluate(convertedPredicate, new DestSimple { Id = -1 }), Is.False);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestSimple { Id = 1 }), Is.True);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestSimple { Id = -1 }), Is.False);
     }
 }

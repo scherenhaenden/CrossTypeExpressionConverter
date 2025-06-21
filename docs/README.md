@@ -218,6 +218,40 @@ This would convert `complexFilter` to `d => d.CalculationResult > 10`.
 
 ---
 
+## Usage with Dependency Injection
+
+The library can be easily registered in an IoC container using the new instance-based converter.
+
+```csharp
+var options = new ExpressionConverterOptions()
+    .WithMemberMap(MappingUtils.BuildMemberMap<User, UserEntity>(u => new UserEntity
+    {
+        UserId = u.Id,
+        UserName = u.Name
+    }));
+
+services.AddSingleton<IExpressionConverter>(new ExpressionConverterInstance(options));
+```
+
+Inject `IExpressionConverter` into your services and use it:
+
+```csharp
+public class UserService
+{
+    private readonly IExpressionConverter _converter;
+
+    public UserService(IExpressionConverter converter)
+    {
+        _converter = converter;
+    }
+
+    public Expression<Func<UserEntity, bool>> BuildFilter(Expression<Func<User, bool>> domainPredicate)
+        => _converter.Convert<User, UserEntity>(domainPredicate);
+}
+```
+
+---
+
 ## 🛣️ Roadmap & Future Enhancements (Post v0.2.1)
 
 While `CrossTypeExpressionConverter v0.2.1` focuses on robust predicate conversion with flexible mapping, future versions may include:
