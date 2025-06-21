@@ -9,6 +9,6 @@ public sealed class MapsToAttribute : Attribute
 
     public MapsToAttribute(string destinationMemberName)
     {
-        DestinationMemberName = destinationMemberName;
+        DestinationMemberName = destinationMemberName ?? throw new ArgumentNullException(nameof(destinationMemberName));
     }
 }
