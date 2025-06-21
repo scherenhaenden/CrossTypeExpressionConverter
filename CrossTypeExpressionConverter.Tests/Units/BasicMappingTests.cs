@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using CrossTypeExpressionConverter.Tests.Helpers;
 using CrossTypeExpressionConverter.Tests.Helpers.Models;
 
 namespace CrossTypeExpressionConverter.Tests.Units;
@@ -10,16 +11,7 @@ namespace CrossTypeExpressionConverter.Tests.Units;
 [TestFixture]
 public class BasicMappingTests
 {
-    /// <summary>
-    /// Compiles and executes a predicate against an item, returning the boolean result.
-    /// </summary>
-    /// <param name="predicate">The expression predicate to evaluate.</param>
-    /// <param name="item">The object to test the predicate against.</param>
-    /// <returns>The result of the predicate evaluation.</returns>
-    private bool Evaluate<T>(Expression<Func<T, bool>> predicate, T item)
-    {
-        return predicate.Compile()(item);
-    }
+
 
     // --- Same-Name Property Mapping Tests ---
 
@@ -36,8 +28,8 @@ public class BasicMappingTests
         var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate);
 
         // Assert
-        Assert.That(Evaluate(convertedPredicate, new DestSimple { Id = 10 }), Is.True);
-        Assert.That(Evaluate(convertedPredicate, new DestSimple { Id = 5 }), Is.False);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestSimple { Id = 10 }), Is.True);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestSimple { Id = 5 }), Is.False);
     }
 
     /// <summary>
@@ -53,8 +45,8 @@ public class BasicMappingTests
         var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate);
 
         // Assert
-        Assert.That(Evaluate(convertedPredicate, new DestSimple { Name = "Test" }), Is.True);
-        Assert.That(Evaluate(convertedPredicate, new DestSimple { Name = "Other" }), Is.False);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestSimple { Name = "Test" }), Is.True);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestSimple { Name = "Other" }), Is.False);
     }
 
     /// <summary>
@@ -70,8 +62,8 @@ public class BasicMappingTests
         var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate);
 
         // Assert
-        Assert.That(Evaluate(convertedPredicate, new DestSimple { IsActive = true }), Is.True);
-        Assert.That(Evaluate(convertedPredicate, new DestSimple { IsActive = false }), Is.False);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestSimple { IsActive = true }), Is.True);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestSimple { IsActive = false }), Is.False);
     }
 
     // --- Dictionary-Based (MemberMap) Mapping Tests ---
@@ -91,8 +83,8 @@ public class BasicMappingTests
         var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestDifferentNames>(sourcePredicate, options);
 
         // Assert
-        Assert.That(Evaluate(convertedPredicate, new DestDifferentNames { EntityId = 20 }), Is.True);
-        Assert.That(Evaluate(convertedPredicate, new DestDifferentNames { EntityId = 15 }), Is.False);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestDifferentNames { EntityId = 20 }), Is.True);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestDifferentNames { EntityId = 15 }), Is.False);
     }
 
     /// <summary>
@@ -110,7 +102,7 @@ public class BasicMappingTests
         var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestDifferentNames>(sourcePredicate, options);
 
         // Assert
-        Assert.That(Evaluate(convertedPredicate, new DestDifferentNames { FullName = "MapTest" }), Is.True);
-        Assert.That(Evaluate(convertedPredicate, new DestDifferentNames { FullName = "OtherMap" }), Is.False);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestDifferentNames { FullName = "MapTest" }), Is.True);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestDifferentNames { FullName = "OtherMap" }), Is.False);
     }
 }

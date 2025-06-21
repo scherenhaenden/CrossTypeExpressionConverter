@@ -62,13 +62,13 @@ Stop rewriting similar filter logic for different types! `CrossTypeExpressionCon
 You can install `CrossTypeExpressionConverter` via NuGet Package Manager:
 
 ```shell
-Install-Package CrossTypeExpressionConverter -Version 0.3.0
+Install-Package CrossTypeExpressionConverter -Version 0.4.0
 ```
 
 Or using the .NET CLI:
 
 ```shell
-dotnet add package CrossTypeExpressionConverter --version 0.3.0
+dotnet add package CrossTypeExpressionConverter --version 0.4.0
 ```
 
 ---
@@ -215,6 +215,40 @@ Func<MemberExpression, ParameterExpression, Expression?> complexCustomMap = (src
 ```
 
 This would convert `complexFilter` to `d => d.CalculationResult > 10`.
+
+---
+
+## Usage with Dependency Injection
+
+The library can be easily registered in an IoC container using the new instance-based converter.
+
+```csharp
+var options = new ExpressionConverterOptions()
+    .WithMemberMap(MappingUtils.BuildMemberMap<User, UserEntity>(u => new UserEntity
+    {
+        UserId = u.Id,
+        UserName = u.Name
+    }));
+
+services.AddSingleton<IExpressionConverter>(new ExpressionConverterInstance(options));
+```
+
+Inject `IExpressionConverter` into your services and use it:
+
+```csharp
+public class UserService
+{
+    private readonly IExpressionConverter _converter;
+
+    public UserService(IExpressionConverter converter)
+    {
+        _converter = converter;
+    }
+
+    public Expression<Func<UserEntity, bool>> BuildFilter(Expression<Func<User, bool>> domainPredicate)
+        => _converter.Convert<User, UserEntity>(domainPredicate);
+}
+```
 
 ---
 
