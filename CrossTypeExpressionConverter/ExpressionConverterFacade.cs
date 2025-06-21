@@ -19,13 +19,16 @@ public static class ExpressionConverterFacade
         IDictionary<string, string>? memberMap = null,
         Func<MemberExpression, ParameterExpression, Expression?>? customMap = null)
     {
+        // Step 1: Create the options object from the simple parameters.
         var options = new ExpressionConverterOptions
         {
             MemberMap = memberMap,
             CustomMap = customMap
         };
-        var converter = new ExpressionConverter(options);
-        return converter.Convert<TSource, TDestination>(sourcePredicate);
+        
+        // Step 2: Call the other, more specific overload in this same class.
+        // This avoids duplicating the logic for creating and calling the ExpressionConverter instance.
+        return Convert<TSource, TDestination>(sourcePredicate, options);
     }
 
     /// <summary>
@@ -35,6 +38,7 @@ public static class ExpressionConverterFacade
         Expression<Func<TSource, bool>> sourcePredicate,
         ExpressionConverterOptions options)
     {
+        // This is now the SINGLE place where the instance is created and used.
         var converter = new ExpressionConverter(options);
         return converter.Convert<TSource, TDestination>(sourcePredicate);
     }
