@@ -1,4 +1,3 @@
-using System;
 using System.Linq.Expressions;
 using CrossTypeExpressionConverter.Tests.Helpers;
 using CrossTypeExpressionConverter.Tests.Helpers.Models;
