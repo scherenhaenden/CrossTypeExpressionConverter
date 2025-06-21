@@ -94,7 +94,7 @@ public sealed class ExpressionConverter : IExpressionConverter
             var visitedExpression = Visit(node.Expression);
             if (visitedExpression == null)
             {
-                // This should not happen in a valid expression tree.
+                // This should not happen in a valid expression tree, but if it does, provide detailed context.
                 throw new InvalidOperationException($"Failed to visit the expression for member '{node.Member.Name}'. Source: {node.Expression}");
             }
 
@@ -129,14 +129,15 @@ public sealed class ExpressionConverter : IExpressionConverter
                     return Expression.Default(node.Type);
                 }
 
-                // The user wants to know about errors, so throw a descriptive exception.
-                // As per our previous discussion, this error message is now more detailed.
+                // If error handling is set to Throw, construct and throw a detailed exception.
                 string mappingDetail = (sourceMemberName == destMemberName)
                     ? ""
                     : $" (when trying to map to '{destMemberName}')";
 
                 throw new InvalidOperationException(
-                    $"Member '{sourceMemberName}' could not be mapped{mappingDetail} because the destination member was not found on type '{visitedExpression.Type.FullName}'.");
+                    $"Member '{sourceMemberName}' from source type '{node.Member.DeclaringType?.FullName ?? "UnknownType"}' " +
+                    $"(attempting to map to '{destMemberName}') could not be mapped because the destination member was not found on type '{visitedExpression.Type.FullName}'. " +
+                    $"Full source member expression being processed: {node}");
             }
 
             // Step 7: If a destination member was found, create and return a new MemberExpression
