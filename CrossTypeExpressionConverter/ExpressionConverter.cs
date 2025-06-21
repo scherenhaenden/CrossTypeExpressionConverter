@@ -51,6 +51,11 @@ public sealed class ExpressionConverter : IExpressionConverter
         private readonly ParameterExpression _replaceParam;
         private readonly ExpressionConverterOptions _options;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Visitor{TSource, TDestination}"/> class for converting expression trees.
+        /// </summary>
+        /// <param name="replaceParam">The parameter expression representing the destination type.</param>
+        /// <param name="options">Options that control expression conversion behavior.</param>
         public Visitor(ParameterExpression replaceParam, ExpressionConverterOptions options)
         {
             _replaceParam = replaceParam;
@@ -75,7 +80,14 @@ public sealed class ExpressionConverter : IExpressionConverter
         /// A new <see cref="MemberExpression"/> pointing to the corresponding member on the destination type,
         /// or a <see cref="DefaultExpression"/> if the member is not found and the error handling is set to <see cref="MemberMappingErrorHandling.ReturnDefault"/>.
         /// </returns>
-        /// <exception cref="InvalidOperationException">Thrown if a member cannot be mapped and error handling is set to <see cref="MemberMappingErrorHandling.Throw"/>.</exception>
+        /// <summary>
+        /// Visits a <see cref="MemberExpression"/> and maps the accessed member from the source type to the destination type according to the configured mapping options.
+        /// </summary>
+        /// <param name="node">The member expression to visit and convert.</param>
+        /// <returns>A new <see cref="MemberExpression"/> accessing the mapped member on the destination type, or a default expression if mapping fails and error handling is set to return default.</returns>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if a member cannot be mapped and error handling is set to <see cref="MemberMappingErrorHandling.Throw"/>.
+        /// </exception>
         protected override Expression VisitMember(MemberExpression node)
         {
             // Step 1: Handle custom mapping first, as it has the highest precedence.
