@@ -227,7 +227,9 @@ var options = new ExpressionConverterOptions()
     .WithMemberMap(MappingUtils.BuildMemberMap<User, UserEntity>(u => new UserEntity
     {
         UserId = u.Id,
-        UserName = u.Name
+        UserName = u.Name,
+        Enabled = u.IsActive,
+        DateOfBirth = u.BirthDate
     }));
 
 services.AddSingleton<IExpressionConverter>(new ExpressionConverterInstance(options));
