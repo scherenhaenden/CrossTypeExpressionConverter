@@ -100,7 +100,7 @@ public class RandomizedMappingAndConversionTests
         Assert.That(TestUtils.Evaluate(sourcePredicate, targetSource), Is.True, "Source predicate should be true for targetSource.");
 
         // 4. Act: Convert the predicate.
-        var convertedPredicate = ExpressionConverter.Convert<SourceModelRandom, DestinationModelRandomMapped>(sourcePredicate, options);
+        var convertedPredicate = ExpressionConverterFacade.Convert<SourceModelRandom, DestinationModelRandomMapped>(sourcePredicate, options);
 
         // 5. Assert: The converted predicate must be true for the target destination object.
         Assert.That(TestUtils.Evaluate(convertedPredicate, targetDestination), Is.True, "Converted predicate should be true for the targetDestination.");
