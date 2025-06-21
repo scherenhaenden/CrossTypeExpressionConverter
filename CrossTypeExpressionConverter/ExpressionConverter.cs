@@ -51,12 +51,6 @@ public sealed class ExpressionConverter : IExpressionConverter
         private readonly ParameterExpression _replaceParam;
         private readonly ExpressionConverterOptions _options;
 
-        private static string? GetAttributeMapping(MemberInfo member)
-        {
-            return _mapsToCache.GetOrAdd(member, static m =>
-                m.GetCustomAttribute<MapsToAttribute>(true)?.DestinationMemberName);
-        }
-
         public Visitor(ParameterExpression replaceParam, ExpressionConverterOptions options)
         {
             _replaceParam = replaceParam;
@@ -116,7 +110,7 @@ public sealed class ExpressionConverter : IExpressionConverter
                 // Precedence 3: [MapsTo] attribute
                 else
                 {
-                    var attrName = GetAttributeMapping(node.Member);
+                    var attrName = MemberMappingCache.GetMapping(node.Member);
                     if (!string.IsNullOrEmpty(attrName))
                     {
                         destMemberName = attrName;
