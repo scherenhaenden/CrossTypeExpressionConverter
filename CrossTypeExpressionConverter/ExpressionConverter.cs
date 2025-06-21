@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Collections.Concurrent;
 
 namespace CrossTypeExpressionConverter;
 
@@ -8,6 +9,7 @@ namespace CrossTypeExpressionConverter;
 /// </summary>
 public static class ExpressionConverter
 {
+    private static readonly ConcurrentDictionary<MemberInfo, string> _mapsToCache = new();
     /// <summary>
     /// Converts a predicate expression from a source type to an equivalent predicate for a destination type.
     /// This overload is kept for backward compatibility with pre-2.0 versions where ExpressionConverterOptions didn't exist.
@@ -107,6 +109,18 @@ public static class ExpressionConverter
                 if (_memberMap != null && _memberMap.TryGetValue(sourceMemberName, out var mappedName))
                 {
                     destMemberName = mappedName;
+                }
+                else
+                {
+                    if (!_mapsToCache.TryGetValue(node.Member, out var attrName))
+                    {
+                        attrName = node.Member.GetCustomAttribute<MapsToAttribute>()?.DestinationMemberName ?? string.Empty;
+                        _mapsToCache[node.Member] = attrName;
+                    }
+                    if (!string.IsNullOrEmpty(attrName))
+                    {
+                        destMemberName = attrName;
+                    }
                 }
             }
             

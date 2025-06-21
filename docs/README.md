@@ -62,13 +62,13 @@ Stop rewriting similar filter logic for different types! `CrossTypeExpressionCon
 You can install `CrossTypeExpressionConverter` via NuGet Package Manager:
 
 ```shell
-Install-Package CrossTypeExpressionConverter -Version 0.4.0
+Install-Package CrossTypeExpressionConverter -Version 0.5.0
 ```
 
 Or using the .NET CLI:
 
 ```shell
-dotnet add package CrossTypeExpressionConverter --version 0.4.0
+dotnet add package CrossTypeExpressionConverter --version 0.5.0
 ```
 
 ---
@@ -216,6 +216,28 @@ Func<MemberExpression, ParameterExpression, Expression?> complexCustomMap = (src
 
 This would convert `complexFilter` to `d => d.CalculationResult > 10`.
 
+## Attribute-Based Mapping
+
+By decorating properties on the source type with `MapsTo`, you can declare how they map to the destination. This reduces the need for configuration code.
+
+```csharp
+public class SourceWithAttrs
+{
+    [MapsTo(nameof(DestAttributeTarget.IdAlias))]
+    public int Id { get; set; }
+}
+
+public class DestAttributeTarget
+{
+    public int IdAlias { get; set; }
+}
+
+Expression<Func<SourceWithAttrs, bool>> pred = s => s.Id == 1;
+var converted = ExpressionConverter.Convert<SourceWithAttrs, DestAttributeTarget>(pred);
+```
+
+The converter resolves members using the following order: `customMap` delegate, `memberMap` dictionary, `[MapsTo]` attribute, then automatic name matching.
+
 ---
 
 ## Usage with Dependency Injection
@@ -261,7 +283,7 @@ While `CrossTypeExpressionConverter v0.2.1` focuses on robust predicate conversi
 * Order By Conversion: Support for key selector expressions for ordering.
 * Fluent Configuration API: A fluent interface for defining mappings.
 * Performance Caching: Internal caching of MemberInfo and type mapping details.
-* Attribute-Based Mapping: Define mappings via attributes on type members.
+* Attribute-Based Mapping (new in v0.5.0): Define mappings via attributes on type members.
 * Roslyn Analyzer: For compile-time diagnostics of potential mapping issues.
 
 ---

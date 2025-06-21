@@ -5,10 +5,10 @@
         <LangVersion>latestmajor</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <PackageVersion>0.4.0</PackageVersion>
-        <Version>0.4.0</Version>
-        <AssemblyVersion>0.4.0</AssemblyVersion>
-        <FileVersion>0.4.0</FileVersion>
+        <PackageVersion>0.5.0</PackageVersion>
+        <Version>0.5.0</Version>
+        <AssemblyVersion>0.5.0</AssemblyVersion>
+        <FileVersion>0.5.0</FileVersion>
         <Authors>Edward S Flores</Authors>
         <Description>Effortlessly translate LINQ predicates across different types (TSource -&gt; TDestination) while maintaining IQueryable compatibility for ORMs like EF Core. Features flexible member mapping: automatic, dictionary-based, or custom delegates.</Description>
         <PackageProjectUrl>https://github.com/scherenhaenden/CrossTypeExpressionConverter</PackageProjectUrl>
