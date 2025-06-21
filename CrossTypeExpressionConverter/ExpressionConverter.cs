@@ -61,45 +61,86 @@ public sealed class ExpressionConverter : IExpressionConverter
             return node.Type == typeof(TSource) ? _replaceParam : base.VisitParameter(node);
         }
 
+        /// <summary>
+        /// Visits a <see cref="MemberExpression"/> (e.g., 'user.Id') to replace it with the corresponding member from the destination type.
+        /// This method is the core of the conversion logic, handling the mapping precedence:
+        /// 1. Custom Mapping Delegate
+        /// 2. Dictionary-based Mapping
+        /// 3. By-name Matching
+        /// </summary>
+        /// <param name="node">The MemberExpression node to visit and convert.</param>
+        /// <returns>
+        /// A new <see cref="MemberExpression"/> pointing to the corresponding member on the destination type,
+        /// or a <see cref="DefaultExpression"/> if the member is not found and the error handling is set to <see cref="MemberMappingErrorHandling.ReturnDefault"/>.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">Thrown if a member cannot be mapped and error handling is set to <see cref="MemberMappingErrorHandling.Throw"/>.</exception>
         protected override Expression VisitMember(MemberExpression node)
         {
+            // Step 1: Handle custom mapping first, as it has the highest precedence.
+            // The user can provide a function to manually define a replacement expression.
             if (_options.CustomMap != null)
             {
                 var customResult = _options.CustomMap(node, _replaceParam);
                 if (customResult != null)
                 {
+                    // If the custom map function returns a result, use it immediately and skip all other logic.
                     return customResult;
                 }
             }
 
+            // Step 2: Recursively visit the expression that this member is being accessed on.
+            // For example, in 'user.Address.Street', this would first visit 'user.Address'.
+            // The result of this visit will be the new base expression (e.g., the converted 'user' or 'user.Address').
             var visitedExpression = Visit(node.Expression);
             if (visitedExpression == null)
             {
+                // This should not happen in a valid expression tree.
                 throw new InvalidOperationException($"Failed to visit the expression for member '{node.Member.Name}'.");
             }
 
+            // Step 3: Determine the source and destination member names.
+            // By default, assume the destination member will have the same name as the source.
             string sourceMemberName = node.Member.Name;
             string destMemberName = sourceMemberName;
 
+            // Step 4: Check for a dictionary-based mapping.
+            // This logic only applies if we are accessing a property directly on the root parameter (e.g., 'user.Id').
             if (visitedExpression == _replaceParam && node.Member.DeclaringType == typeof(TSource))
             {
                 if (_options.MemberMap != null && _options.MemberMap.TryGetValue(sourceMemberName, out var mappedName))
                 {
+                    // If a mapping is found in the dictionary, update the destination name.
                     destMemberName = mappedName;
                 }
             }
 
+            // Step 5: Using reflection, find the corresponding member on the destination type.
+            // For example, if destMemberName is "UserId", it will search for a property named "UserId" on the destination type.
             var destMember = visitedExpression.Type.GetMember(destMemberName, BindingFlags.Instance | BindingFlags.Public).FirstOrDefault();
 
+            // Step 6: Handle the case where no corresponding member is found on the destination type.
             if (destMember == null)
             {
+                // Check the configured error handling strategy.
                 if (_options.ErrorHandling == MemberMappingErrorHandling.ReturnDefault)
                 {
+                    // If configured to ignore, return a default value for the member's type (e.g., null, 0, false).
+                    // This allows the rest of the LINQ expression to continue evaluating.
                     return Expression.Default(node.Type);
                 }
-                throw new InvalidOperationException($"Member '{sourceMemberName}' could not be mapped to destination type '{visitedExpression.Type.FullName}'.");
+
+                // The user wants to know about errors, so throw a descriptive exception.
+                // As per our previous discussion, this error message is now more detailed.
+                string mappingDetail = (sourceMemberName == destMemberName)
+                    ? ""
+                    : $" (when trying to map to '{destMemberName}')";
+
+                throw new InvalidOperationException(
+                    $"Member '{sourceMemberName}' could not be mapped{mappingDetail} because the destination member was not found on type '{visitedExpression.Type.FullName}'.");
             }
 
+            // Step 7: If a destination member was found, create and return a new MemberExpression
+            // that accesses this new member on the already-visited expression.
             return Expression.MakeMemberAccess(visitedExpression, destMember);
         }
     }
