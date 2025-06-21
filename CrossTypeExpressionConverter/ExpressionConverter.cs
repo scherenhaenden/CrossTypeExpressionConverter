@@ -10,7 +10,8 @@ public static class ExpressionConverter
 {
     /// <summary>
     /// Converts a predicate expression from a source type to an equivalent predicate for a destination type.
-    /// Esta sobrecarga es para mantener la retrocompatibilidad.
+    /// This overload is kept for backward compatibility with pre-2.0 versions where ExpressionConverterOptions didn't exist.
+    /// It provides a simpler interface for basic member mapping scenarios.
     /// </summary>
     public static Expression<Func<TDestination, bool>> Convert<TSource, TDestination>(
         Expression<Func<TSource, bool>> sourcePredicate,
@@ -22,8 +23,7 @@ public static class ExpressionConverter
             MemberMap = memberMap,
             CustomMap = customMap
         };
-
-        return Convert<TSource, TDestination>(sourcePredicate, options);
+        return ConvertCore<TSource, TDestination>(sourcePredicate, options);
     }
 
     /// <summary>
@@ -33,6 +33,13 @@ public static class ExpressionConverter
     /// <exception cref="ArgumentNullException">Thrown if sourcePredicate or options are null.</exception>
     /// <exception cref="InvalidOperationException">Thrown if the expression body cannot be converted or if a mapped member cannot be found on the destination type (and ErrorHandling is set to Throw).</exception>
     public static Expression<Func<TDestination, bool>> Convert<TSource, TDestination>(
+        Expression<Func<TSource, bool>> sourcePredicate,
+        ExpressionConverterOptions options)
+    {
+        return ConvertCore<TSource, TDestination>(sourcePredicate, options);
+    }
+
+    private static Expression<Func<TDestination, bool>> ConvertCore<TSource, TDestination>(
         Expression<Func<TSource, bool>> sourcePredicate,
         ExpressionConverterOptions options)
     {
@@ -50,7 +57,7 @@ public static class ExpressionConverter
         {
             throw new InvalidOperationException("The body of the expression could not be converted.");
         }
-        
+
         return Expression.Lambda<Func<TDestination, bool>>(body, replaceParam);
     }
 

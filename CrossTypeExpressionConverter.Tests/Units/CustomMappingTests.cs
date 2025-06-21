@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using CrossTypeExpressionConverter.Tests.Helpers;
 using CrossTypeExpressionConverter.Tests.Helpers.Models;
 
 namespace CrossTypeExpressionConverter.Tests.Units;
@@ -9,16 +10,7 @@ namespace CrossTypeExpressionConverter.Tests.Units;
 [TestFixture]
 public class CustomMappingTests
 {
-    /// <summary>
-    /// Compiles and executes a predicate against an item, returning the boolean result.
-    /// </summary>
-    /// <param name="predicate">The expression predicate to evaluate.</param>
-    /// <param name="item">The object to test the predicate against.</param>
-    /// <returns>The result of the predicate evaluation.</returns>
-    private bool Evaluate<T>(Expression<Func<T, bool>> predicate, T item)
-    {
-        return predicate.Compile()(item);
-    }
+
 
     /// <summary>
     /// Verifies that a string property can be mapped to a destination property with a different name using a custom map.
@@ -46,8 +38,8 @@ public class CustomMappingTests
         var convertedPredicate = ExpressionConverter.Convert<SourceForCustomMap, DestForCustomMap>(sourcePredicate, options);
 
         // Assert
-        Assert.That(Evaluate(convertedPredicate, new DestForCustomMap { TransformedData = "PREFIX_Original" }), Is.True);
-        Assert.That(Evaluate(convertedPredicate, new DestForCustomMap { TransformedData = "Original" }), Is.False);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestForCustomMap { TransformedData = "PREFIX_Original" }), Is.True);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestForCustomMap { TransformedData = "Original" }), Is.False);
     }
     
     /// <summary>
@@ -83,7 +75,7 @@ public class CustomMappingTests
         
         // Assert
         // The converted predicate must be true for a destination object where DoubledValue is 20.
-        Assert.That(Evaluate(convertedPredicate, new DestForCustomMap { DoubledValue = 20 }), Is.True);
-        Assert.That(Evaluate(convertedPredicate, new DestForCustomMap { DoubledValue = 10 }), Is.False);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestForCustomMap { DoubledValue = 20 }), Is.True);
+        Assert.That(TestUtils.Evaluate(convertedPredicate, new DestForCustomMap { DoubledValue = 10 }), Is.False);
     }
 }

@@ -1,20 +1,20 @@
 namespace CrossTypeExpressionConverter;
 
 /// <summary>
-/// Especifica cómo reacciona el convertidor cuando un miembro no se puede mapear.
+/// Specifies how the converter reacts when a member cannot be mapped.
 /// </summary>
 public enum MemberMappingErrorHandling
 {
     /// <summary>
-    /// Lanza una InvalidOperationException (comportamiento por defecto).
-    /// Use esta opción para fallar rápido y asegurar que todos los miembros estén correctamente mapeados.
+    /// Throws an <see cref="InvalidOperationException"/> (default behavior).
+    /// Use this option to fail fast and ensure all members are mapped correctly.
     /// </summary>
     Throw,
 
     /// <summary>
-    /// Ignora el miembro faltante y sustituye una expresión que devuelve el valor por defecto del tipo del miembro (p. ej., null para objetos, 0 para números).
-    /// ¡Atención! Esto puede causar que los predicados se evalúen de forma inesperada (p. ej., una condición puede volverse falsa silenciosamente).
-    /// Es útil para mapear tipos que solo coinciden parcialmente sin que la aplicación se detenga.
+    /// Ignores the missing member and substitutes an expression that returns the default value for the member type (e.g., <c>null</c> for reference types).
+    /// Be aware that this may cause predicates to evaluate unexpectedly (for example, a condition may silently become false).
+    /// This is useful for mapping types that only partially match without halting the application.
     /// </summary>
     ReturnDefault
 }
