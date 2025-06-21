@@ -1,5 +1,3 @@
-using System;
-
 namespace CrossTypeExpressionConverter;
 
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]

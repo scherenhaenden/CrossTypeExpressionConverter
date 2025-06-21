@@ -1,5 +1,3 @@
-using CrossTypeExpressionConverter;
-
 namespace CrossTypeExpressionConverter.Tests.Helpers.Models;
 
 public class SourceWithAttributeId
