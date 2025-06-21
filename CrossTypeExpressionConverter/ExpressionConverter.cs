@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -49,6 +50,13 @@ public sealed class ExpressionConverter : IExpressionConverter
     {
         private readonly ParameterExpression _replaceParam;
         private readonly ExpressionConverterOptions _options;
+        private static readonly ConcurrentDictionary<MemberInfo, string?> _mapsToCache = new();
+
+        private static string? GetAttributeMapping(MemberInfo member)
+        {
+            return _mapsToCache.GetOrAdd(member, static m =>
+                m.GetCustomAttribute<MapsToAttribute>(true)?.DestinationMemberName);
+        }
 
         public Visitor(ParameterExpression replaceParam, ExpressionConverterOptions options)
         {
@@ -66,7 +74,8 @@ public sealed class ExpressionConverter : IExpressionConverter
         /// This method is the core of the conversion logic, handling the mapping precedence:
         /// 1. Custom Mapping Delegate
         /// 2. Dictionary-based Mapping
-        /// 3. By-name Matching
+        /// 3. Attribute-Based Mapping via <see cref="MapsToAttribute"/>
+        /// 4. By-name Matching
         /// </summary>
         /// <param name="node">The MemberExpression node to visit and convert.</param>
         /// <returns>
@@ -111,6 +120,15 @@ public sealed class ExpressionConverter : IExpressionConverter
                 {
                     // If a mapping is found in the dictionary, update the destination name.
                     destMemberName = mappedName;
+                }
+                else
+                {
+                    // Step 4b: Check for [MapsTo] attribute on the source member.
+                    var attrName = GetAttributeMapping(node.Member);
+                    if (!string.IsNullOrEmpty(attrName))
+                    {
+                        destMemberName = attrName;
+                    }
                 }
             }
 

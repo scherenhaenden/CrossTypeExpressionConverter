@@ -62,13 +62,13 @@ Stop rewriting similar filter logic for different types! `CrossTypeExpressionCon
 You can install `CrossTypeExpressionConverter` via NuGet Package Manager:
 
 ```shell
-Install-Package CrossTypeExpressionConverter -Version 0.4.1
+Install-Package CrossTypeExpressionConverter -Version 0.5.0
 ```
 
 Or using the .NET CLI:
 
 ```shell
-dotnet add package CrossTypeExpressionConverter --version 0.4.1
+dotnet add package CrossTypeExpressionConverter --version 0.5.0
 ```
 
 ---
@@ -215,6 +215,28 @@ Func<MemberExpression, ParameterExpression, Expression?> complexCustomMap = (src
 ```
 
 This would convert `complexFilter` to `d => d.CalculationResult > 10`.
+
+---
+
+### Attribute-Based Mapping
+
+Version 0.5 introduces an easier way to define mappings using attributes. Decorate
+properties on your source model with `MapsToAttribute` to declare the corresponding
+destination property name.
+
+```csharp
+public class SourceModel
+{
+    [MapsTo(nameof(DestinationModel.EntityId))]
+    public int Id { get; set; }
+}
+```
+
+When converting the expression, no `memberMap` is required. Mapping precedence is now:
+1. `customMap`
+2. `memberMap`
+3. `MapsToAttribute`
+4. By-name matching
 
 ---
 
