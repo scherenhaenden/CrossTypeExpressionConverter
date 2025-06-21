@@ -22,6 +22,7 @@
 
 <!-- Coverage % -->
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=scherenhaenden_CrossTypeExpressionConverter&metric=coverage)](https://sonarcloud.io/dashboard?id=scherenhaenden_CrossTypeExpressionConverter)
+[![Codecov](https://codecov.io/gh/scherenhaenden/CrossTypeExpressionConverter/branch/master/graph/badge.svg?style=flat-square)](https://codecov.io/gh/scherenhaenden/CrossTypeExpressionConverter)
 
 
 
