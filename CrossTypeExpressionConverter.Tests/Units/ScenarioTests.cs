@@ -34,7 +34,7 @@ public class ScenarioTests
         Expression<Func<NewsDataModel, bool>> sourcePredicate = news => news.NewsTitle == "Breaking News";
 
         // Act
-        var convertedPredicate = ExpressionConverter.Convert<NewsDataModel, ArticleDataModel>(sourcePredicate, options);
+        var convertedPredicate = ExpressionConverterFacade.Convert<NewsDataModel, ArticleDataModel>(sourcePredicate, options);
 
         // Assert
         Assert.That(TestUtils.Evaluate(convertedPredicate, new ArticleDataModel { Title = "Breaking News" }), Is.True);
@@ -58,7 +58,7 @@ public class ScenarioTests
         Expression<Func<NewsDataModel, bool>> sourcePredicate = news => news.PublicationDate > testDate;
 
         // Act
-        var convertedPredicate = ExpressionConverter.Convert<NewsDataModel, ArticleDataModel>(sourcePredicate, options);
+        var convertedPredicate = ExpressionConverterFacade.Convert<NewsDataModel, ArticleDataModel>(sourcePredicate, options);
 
         // Assert
         Assert.That(TestUtils.Evaluate(convertedPredicate, new ArticleDataModel { PublicationDate = testDate.AddDays(1) }), Is.True);
@@ -82,7 +82,7 @@ public class ScenarioTests
             subject => subject.SubjectName.Contains("Math") && subject.IsMandatory;
             
         // Act
-        var convertedPredicate = ExpressionConverter.Convert<SubjectDatabaseModel, SubjectsDatamodel>(sourcePredicate, options);
+        var convertedPredicate = ExpressionConverterFacade.Convert<SubjectDatabaseModel, SubjectsDatamodel>(sourcePredicate, options);
 
         // Assert
         Assert.That(TestUtils.Evaluate(convertedPredicate, new SubjectsDatamodel { NameOfSubject = "Advanced Mathematics", Mandatory = true }), Is.True);

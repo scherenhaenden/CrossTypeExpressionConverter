@@ -230,7 +230,7 @@ var options = new ExpressionConverterOptions()
         UserName = u.Name
     }));
 
-services.AddSingleton<IExpressionConverter>(new ExpressionConverterInstance(options));
+services.AddSingleton<IExpressionConverter>(new ExpressionConverter(options));
 ```
 
 Inject `IExpressionConverter` into your services and use it:
