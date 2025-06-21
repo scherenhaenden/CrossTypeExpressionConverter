@@ -10,7 +10,8 @@ public static class ExpressionConverter
 {
     /// <summary>
     /// Converts a predicate expression from a source type to an equivalent predicate for a destination type.
-    /// This overload is kept for backward compatibility.
+    /// This overload is kept for backward compatibility with pre-2.0 versions where ExpressionConverterOptions didn't exist.
+    /// It provides a simpler interface for basic member mapping scenarios.
     /// </summary>
     public static Expression<Func<TDestination, bool>> Convert<TSource, TDestination>(
         Expression<Func<TSource, bool>> sourcePredicate,
