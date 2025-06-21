@@ -31,7 +31,7 @@ public class ExpressionStructureTests
         Expression<Func<SourceSimple, bool>> sourcePredicate = s => s.Id > 5 && s.IsActive;
 
         // Act
-        var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate);
+        var convertedPredicate = ExpressionConverterFacade.Convert<SourceSimple, DestSimple>(sourcePredicate);
 
         // Assert
         Assert.That(TestUtils.Evaluate(convertedPredicate, new DestSimple { Id = 10, IsActive = true }), Is.True);
@@ -55,7 +55,7 @@ public class ExpressionStructureTests
             });
 
         // Act
-        var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestDifferentNames>(sourcePredicate, options);
+        var convertedPredicate = ExpressionConverterFacade.Convert<SourceSimple, DestDifferentNames>(sourcePredicate, options);
 
         // Assert
         Assert.That(TestUtils.Evaluate(convertedPredicate, new DestDifferentNames { EntityId = 1, FullName = "Other" }), Is.True);
@@ -75,7 +75,7 @@ public class ExpressionStructureTests
         Expression<Func<SourceSimple, bool>> sourcePredicate = s => s.Name != null && s.Name.StartsWith("Prefix");
 
         // Act
-        var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate);
+        var convertedPredicate = ExpressionConverterFacade.Convert<SourceSimple, DestSimple>(sourcePredicate);
 
         // Assert
         Assert.That(TestUtils.Evaluate(convertedPredicate, new DestSimple { Name = "PrefixValue" }), Is.True);
@@ -95,7 +95,7 @@ public class ExpressionStructureTests
             .WithMemberMap(new Dictionary<string, string> { { nameof(SourceSimple.Name), nameof(DestDifferentNames.FullName) } });
 
         // Act
-        var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestDifferentNames>(sourcePredicate, options);
+        var convertedPredicate = ExpressionConverterFacade.Convert<SourceSimple, DestDifferentNames>(sourcePredicate, options);
 
         // Assert
         Assert.That(TestUtils.Evaluate(convertedPredicate, new DestDifferentNames { FullName = "StartMiddleEnd" }), Is.True);
@@ -114,7 +114,7 @@ public class ExpressionStructureTests
         Expression<Func<SourceSimple, bool>> sourcePredicate = s => s.Id > 0 && 10 > 5; // 10 > 5 is always true
 
         // Act
-        var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate);
+        var convertedPredicate = ExpressionConverterFacade.Convert<SourceSimple, DestSimple>(sourcePredicate);
 
         // Assert
         Assert.That(TestUtils.Evaluate(convertedPredicate, new DestSimple { Id = 1 }), Is.True);

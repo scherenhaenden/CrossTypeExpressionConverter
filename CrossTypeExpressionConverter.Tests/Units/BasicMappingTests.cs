@@ -25,7 +25,7 @@ public class BasicMappingTests
         Expression<Func<SourceSimple, bool>> sourcePredicate = s => s.Id == 10;
 
         // Act
-        var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate);
+        var convertedPredicate = ExpressionConverterFacade.Convert<SourceSimple, DestSimple>(sourcePredicate);
 
         // Assert
         Assert.That(TestUtils.Evaluate(convertedPredicate, new DestSimple { Id = 10 }), Is.True);
@@ -42,7 +42,7 @@ public class BasicMappingTests
         Expression<Func<SourceSimple, bool>> sourcePredicate = s => s.Name == "Test";
 
         // Act
-        var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate);
+        var convertedPredicate = ExpressionConverterFacade.Convert<SourceSimple, DestSimple>(sourcePredicate);
 
         // Assert
         Assert.That(TestUtils.Evaluate(convertedPredicate, new DestSimple { Name = "Test" }), Is.True);
@@ -59,7 +59,7 @@ public class BasicMappingTests
         Expression<Func<SourceSimple, bool>> sourcePredicate = s => s.IsActive; // Equivalent to s.IsActive == true
 
         // Act
-        var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestSimple>(sourcePredicate);
+        var convertedPredicate = ExpressionConverterFacade.Convert<SourceSimple, DestSimple>(sourcePredicate);
 
         // Assert
         Assert.That(TestUtils.Evaluate(convertedPredicate, new DestSimple { IsActive = true }), Is.True);
@@ -80,7 +80,7 @@ public class BasicMappingTests
             .WithMemberMap(new Dictionary<string, string> { { nameof(SourceSimple.Id), nameof(DestDifferentNames.EntityId) } });
 
         // Act
-        var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestDifferentNames>(sourcePredicate, options);
+        var convertedPredicate = ExpressionConverterFacade.Convert<SourceSimple, DestDifferentNames>(sourcePredicate, options);
 
         // Assert
         Assert.That(TestUtils.Evaluate(convertedPredicate, new DestDifferentNames { EntityId = 20 }), Is.True);
@@ -99,7 +99,7 @@ public class BasicMappingTests
             .WithMemberMap(new Dictionary<string, string> { { nameof(SourceSimple.Name), nameof(DestDifferentNames.FullName) } });
 
         // Act
-        var convertedPredicate = ExpressionConverter.Convert<SourceSimple, DestDifferentNames>(sourcePredicate, options);
+        var convertedPredicate = ExpressionConverterFacade.Convert<SourceSimple, DestDifferentNames>(sourcePredicate, options);
 
         // Assert
         Assert.That(TestUtils.Evaluate(convertedPredicate, new DestDifferentNames { FullName = "MapTest" }), Is.True);
