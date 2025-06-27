@@ -38,6 +38,11 @@ internal static class MemberMappingCache
     public static void PrimeCacheForType(Type type)
     {
         // Use a simple flag in the cache to ensure we only process each type once.
+        if (type.FullName is null)
+        {
+            // Don't prime for types without a name.
+            return;
+        }
         string typeProcessedKey = $"processed_{type.FullName}";
 
         if (!Cache.TryGetValue(typeProcessedKey, out _))
