@@ -29,7 +29,33 @@ internal static class MemberMappingCache
         // for this duration. This helps remove stale entries that are no longer in use.
         .SetSlidingExpiration(TimeSpan.FromMinutes(30));
 
+    /// <summary>
+    /// Proactively finds all [MapsTo] attributes for a given type's members
+    /// and populates the cache. This is a performance optimization to avoid
+    /// repeated, individual reflection lookups for each member during expression conversion.
+    /// </summary>
+    /// <param name="type">The type whose members' mappings will be cached.</param>
+    public static void PrimeCacheForType(Type type)
+    {
+        // Use a simple flag in the cache to ensure we only process each type once.
+        string typeProcessedKey = $"processed_{type.FullName}";
 
+        if (!Cache.TryGetValue(typeProcessedKey, out _))
+        {
+            var members = type.GetMembers(BindingFlags.Public | BindingFlags.Instance);
+            foreach (var member in members)
+            {
+                // This call will populate the cache for each member of the type.
+                // The actual reflection only happens if the member is not already cached.
+                GetMapping(member);
+            }
+            
+            // Mark this type as processed so we don't repeat the work.
+            // The expiration for this flag can be shorter than the member entries themselves.
+            Cache.Set(typeProcessedKey, true, TimeSpan.FromHours(1));
+        }
+    }
+    
     /// <summary>
     /// Retrieves the destination member name mapped to the specified member via the MapsToAttribute,
     /// using a cached value if available.
