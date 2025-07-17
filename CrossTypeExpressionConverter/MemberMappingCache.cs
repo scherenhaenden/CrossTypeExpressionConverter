@@ -12,12 +12,9 @@ internal sealed class MemberMappingCache
     private static readonly ConcurrentDictionary<MemberInfo, string?> Cache = new();
 
     /// <summary>
-    /// Gets the mapped destination member name for a given source member, using the cache.
-    /// <summary>
-    /// Retrieves the destination member name mapped to the specified member, using a cached value if available.
+    /// Retrieves the destination member name mapped to the specified source member using a cache.
     /// </summary>
     /// <param name="member">The source member for which to retrieve the mapped destination member name.</param>
-    /// <returns>The destination member name if a mapping exists; otherwise, null.</returns>
     public static string? GetMapping(MemberInfo member)
     {
         return Cache.GetOrAdd(member, static m => 
