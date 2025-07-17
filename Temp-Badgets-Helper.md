@@ -4,7 +4,7 @@
 [![SonarCloud Quality Gate](https://img.shields.io/sonar/quality_gate/scherenhaenden_CrossTypeExpressionConverter?server=https%3A%2F%2Fsonarcloud.io\&style=flat-square)](https://sonarcloud.io/summary/new_code?id=scherenhaenden_CrossTypeExpressionConverter)
 [![SonarCloud Bugs](https://img.shields.io/sonar/bugs/scherenhaenden_CrossTypeExpressionConverter?server=https%3A%2F%2Fsonarcloud.io\&style=flat-square)](https://sonarcloud.io/project/issues?id=scherenhaenden_CrossTypeExpressionConverter&resolved=false&types=BUG)
 [![SonarCloud Coverage](https://img.shields.io/sonar/coverage/scherenhaenden_CrossTypeExpressionConverter?server=https%3A%2F%2Fsonarcloud.io\&style=flat-square)](https://sonarcloud.io/component_measures?id=scherenhaenden_CrossTypeExpressionConverter&metric=coverage)
-[![CodeFactor](https://www.codefactor.io/repository/github/scherenhaenden/crosstypeexpressionconverter/badge?style=flat-square)](https://www.codefactor.io/repository/github/scherenhaenden/crosstypeexpressionconverter)
+
 [![GitHub last commit](https://img.shields.io/github/last-commit/scherenhaenden/CrossTypeExpressionConverter?style=flat-square)](https://github.com/scherenhaenden/CrossTypeExpressionConverter/commits/master)
 [![GitHub commit activity](https://img.shields.io/github/commit-activity/m/scherenhaenden/CrossTypeExpressionConverter?style=flat-square)](https://github.com/scherenhaenden/CrossTypeExpressionConverter/graphs/commit-activity)
 [![GitHub repo size](https://img.shields.io/github/repo-size/scherenhaenden/CrossTypeExpressionConverter?style=flat-square)](https://github.com/scherenhaenden/CrossTypeExpressionConverter)
