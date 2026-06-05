@@ -100,7 +100,7 @@ public class UserService
 
     public async Task<List<UserDto>> GetUsersAsync(Expression<Func<User, bool>> domainPredicate)
     {
-        // Translate the domain-layer filter into an database-entity-layer filter
+        // Translate the domain-layer filter into a database-entity-layer filter
         Expression<Func<UserEntity, bool>> dbPredicate = 
             _expressionConverter.Convert<User, UserEntity>(domainPredicate);
 
